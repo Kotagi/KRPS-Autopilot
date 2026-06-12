@@ -20,6 +20,9 @@ class VesselService:
         self._game = game
 
     def get_controls(self) -> VesselControlsState:
+        return self._game.run_sync(self._read_controls)
+
+    def _read_controls(self) -> VesselControlsState:
         self._game.require_flight()
         vessel = self._game.active_vessel()
         control = vessel.control

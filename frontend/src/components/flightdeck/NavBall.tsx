@@ -200,9 +200,27 @@ export function NavBall({ telemetry, connected }: NavBallProps) {
               )}
             </g>
 
-            <g className="navball-reticle-ksp">
-              <path d="M 0 -18 L -14 8 L -4 4 L 0 10 L 4 4 L 14 8 Z" className="navball-reticle-v" />
-              <circle cx={0} cy={0} r={2.5} className="navball-reticle-dot" />
+            <g className="navball-reticle-ksp" aria-hidden="true">
+              <g className="navball-crosshair">
+                <line x1={0} y1={-18} x2={0} y2={18} />
+                <line x1={-18} y1={0} x2={18} y2={0} />
+              </g>
+              <g className="navball-level-indicator">
+                <g className="navball-level-outline">
+                  <line x1={-14} y1={0} x2={-4.5} y2={0} />
+                  <line x1={4.5} y1={0} x2={14} y2={0} />
+                  <line x1={-4.5} y1={0} x2={0} y2={9.5} />
+                  <line x1={4.5} y1={0} x2={0} y2={9.5} />
+                  <polygon points="0,-2.6 2.6,0 0,2.6 -2.6,0" />
+                </g>
+                <g className="navball-level-fill">
+                  <line x1={-14} y1={0} x2={-4.5} y2={0} />
+                  <line x1={4.5} y1={0} x2={14} y2={0} />
+                  <line x1={-4.5} y1={0} x2={0} y2={9.5} />
+                  <line x1={4.5} y1={0} x2={0} y2={9.5} />
+                  <polygon points="0,-2.2 2.2,0 0,2.2 -2.2,0" />
+                </g>
+              </g>
             </g>
           </svg>
         </div>

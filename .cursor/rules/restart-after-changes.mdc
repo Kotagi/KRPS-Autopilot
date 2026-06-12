@@ -1,33 +1,39 @@
 ---
-description: Restart KPRS Autopilot after code changes so the user can test immediately
+description: Mandatory rebuild and restart after any server or frontend code changes
 alwaysApply: true
 ---
 
-# Restart autopilot after changes
+# Always rebuild and restart
 
-When you edit backend or frontend code in this project, restart the local server before ending your turn so the user can test right away.
+**Hard rule:** After changing backend, frontend, or anything that affects the running server, you **must** rebuild and restart before ending your turn. Do not tell the user to restart — do it yourself.
 
-## Command
+## Required command
 
-From the repo root, run:
-
-```powershell
-.venv\Scripts\python scripts\restart_autopilot.py
-```
-
-Use `--build` if you changed frontend code and want to force a rebuild:
+From the repo root, **always** use `--build`:
 
 ```powershell
 .venv\Scripts\python scripts\restart_autopilot.py --build
 ```
 
+## When this applies
+
+- Any edit under `backend/`, `frontend/src/`, `scripts/`, or config that the server loads
+- Telemetry, API, WebSocket, navball, or UI changes
+- Even small fixes — rebuild and restart every time
+
 ## What it does
 
 1. Stops any process on port 8000
-2. Rebuilds `frontend/dist` when source is newer than the last build (or when `--build` is passed)
-3. Starts uvicorn detached and opens http://127.0.0.1:8000
+2. Rebuilds `frontend/dist`
+3. Starts uvicorn and serves http://127.0.0.1:8000
 
-## Skip only when
+## Only skip if
 
-- The user explicitly asks not to restart
-- You made no runnable code changes (docs-only, comments-only, etc.)
+- The user explicitly says not to restart
+- The change is docs-only or comments-only with zero runtime effect
+
+## Never
+
+- End a coding turn with "restart when ready" or "run restart yourself"
+- Use restart without `--build` after code changes
+- Assume a prior restart covers new edits in the same session

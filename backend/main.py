@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -14,6 +15,11 @@ from backend.core.connection import game_connection
 from backend.phases.instances import ascent_phase, maneuver_phase
 from backend.phases.registry import PhaseRegistry
 from backend.services.telemetry_service import telemetry_service
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+)
 
 phase_registry = PhaseRegistry()
 

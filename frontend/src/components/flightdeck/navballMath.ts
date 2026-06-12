@@ -554,13 +554,13 @@ export function projectCardinal(
   return projectToDisc(vessel, radius);
 }
 
+/** Prograde from kRPC is in vessel reference frame. */
 export function projectPrograde(
   prograde: Vec3,
-  invQ: Quat,
+  _invQ: Quat,
   radius: number
 ): [number, number] | null {
-  const vessel = quatRotate(invQ, normalize(prograde));
-  return projectVesselDirection(vessel, radius);
+  return projectVesselDirection(normalize(prograde), radius);
 }
 
 export function skyGroundColor(zenithComponent: number): string {

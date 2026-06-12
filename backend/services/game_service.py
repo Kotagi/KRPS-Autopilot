@@ -8,6 +8,9 @@ class GameService:
         self._game = game
 
     def connect(self) -> ConnectionStatus:
+        from backend.services.telemetry_service import telemetry_service
+
+        telemetry_service.reset_telemetry_state()
         try:
             self._game.connect()
         except KspConnectionError:
@@ -17,6 +20,9 @@ class GameService:
         return self.get_status()
 
     def disconnect(self) -> ConnectionStatus:
+        from backend.services.telemetry_service import telemetry_service
+
+        telemetry_service.reset_telemetry_state()
         self._game.disconnect()
         return self.get_status()
 

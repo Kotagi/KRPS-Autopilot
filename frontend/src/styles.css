@@ -483,14 +483,31 @@ select {
   fill: #ffffff;
 }
 
-.navball-reticle-v {
-  fill: #f5b942;
-  stroke: #c4921f;
-  stroke-width: 0.5;
+.navball-crosshair line {
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 0.75;
+  stroke-linecap: round;
 }
 
-.navball-reticle-dot {
-  fill: #f5b942;
+.navball-level-outline line,
+.navball-level-outline polygon {
+  stroke: rgba(20, 12, 0, 0.85);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: rgba(20, 12, 0, 0.85);
+}
+
+.navball-level-fill line {
+  stroke: #ffd200;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.navball-level-fill polygon {
+  fill: #ffd200;
+  stroke: none;
 }
 
 .navball-placeholder {
