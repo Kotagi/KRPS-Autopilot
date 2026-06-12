@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 
 import type { VesselTelemetry } from "../../api/types";
+import { telemetryClientDebug } from "../../debug/telemetryClientDebug";
+import { surfaceRotationKey } from "../../debug/telemetryCompare";
 
 import {
   HEADING_MERIDIAN_STEP,
@@ -27,6 +29,7 @@ function placeholderMessage(connected: boolean): string {
 }
 
 function formatHeading(deg: number): string {
+  if (!Number.isFinite(deg)) return "---";
   const h = ((deg % 360) + 360) % 360;
   return h.toFixed(0).padStart(3, "0");
 }
@@ -59,6 +62,7 @@ function rotatedLabelTransform(x: number, y: number, rotationDeg: number): strin
 
 export function NavBall({ telemetry, connected }: NavBallProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const renderStartRef = useRef<number | null>(null);
 
   const pitch = telemetry?.pitch_deg ?? 0;
   const roll = telemetry?.roll_deg ?? 0;
@@ -67,18 +71,21 @@ export function NavBall({ telemetry, connected }: NavBallProps) {
   const prograde = telemetry?.prograde ?? [0, 0, 1];
   const showPrograde = speed > 0.5;
   const surfaceRotation = telemetry?.surface_rotation as Quat | undefined;
+  const surfaceRotationKeyValue = surfaceRotationKey(surfaceRotation);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !surfaceRotation) return;
 
+    const paintStart = performance.now();
     const ctx = setupCanvas(canvas);
     if (!ctx) return;
 
     const px = RADIUS * 2;
     ctx.clearRect(0, 0, px, px);
     paintNavballCanvas(ctx, RADIUS, surfaceRotation, RADIUS, RADIUS);
-  }, [surfaceRotation]);
+    telemetryClientDebug.recordPhase("canvas-paint", performance.now() - paintStart);
+  }, [surfaceRotation, surfaceRotationKeyValue]);
 
   if (!telemetry) {
     return (
@@ -89,11 +96,22 @@ export function NavBall({ telemetry, connected }: NavBallProps) {
     );
   }
 
+  renderStartRef.current = performance.now();
+
   const invQ = surfaceRotation ? quatConjugate(surfaceRotation) : quatConjugate([0, 0, 0, 1]);
+  const svgStart = performance.now();
   const headingMeridians = buildHeadingMeridians(invQ, RADIUS, pitch);
   const pitchRingLabels = buildPitchRingLabels(invQ, RADIUS, pitch);
   const intercardinalHeadingLabels = buildIntercardinalHeadingLabels(invQ, RADIUS, pitch);
   const progradePoint = showPrograde ? projectPrograde(prograde, invQ, RADIUS) : null;
+  telemetryClientDebug.recordPhase("svg-build", performance.now() - svgStart);
+
+  if (renderStartRef.current !== null) {
+    telemetryClientDebug.recordPhase(
+      "navball-render",
+      performance.now() - renderStartRef.current
+    );
+  }
 
   return (
     <div className="navball-wrap navball-wrap--ksp">

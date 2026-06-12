@@ -1,9 +1,11 @@
 export type AppRouteId =
   | "flight"
+  | "optics"
   | "autopilot"
   | "map"
   | "mission"
-  | "vehicle";
+  | "vehicle"
+  | "settings";
 
 export interface AppRoute {
   id: AppRouteId;
@@ -18,6 +20,12 @@ export const APP_ROUTES: AppRoute[] = [
     path: "/flight",
     label: "Flight Deck",
     tagline: "Live cockpit and vehicle state",
+  },
+  {
+    id: "optics",
+    path: "/optics",
+    label: "Onboard Optics",
+    tagline: "External camera feeds from the active vessel",
   },
   {
     id: "autopilot",
@@ -42,6 +50,12 @@ export const APP_ROUTES: AppRoute[] = [
     path: "/vehicle",
     label: "Vehicle",
     tagline: "Stages, resources, and inspection",
+  },
+  {
+    id: "settings",
+    path: "/settings",
+    label: "Settings",
+    tagline: "Preferences and diagnostics",
   },
 ];
 

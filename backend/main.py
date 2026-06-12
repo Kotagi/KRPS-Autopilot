@@ -8,10 +8,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from backend.api.routes import ascent, connection, maneuver, target, vessel, ws
+from backend.api.routes import ascent, cameras, connection, maneuver, target, telemetry, vessel, ws
 from backend.config import FRONTEND_DIST
 from backend.core.async_utils import set_main_loop
 from backend.core.connection import game_connection
+from backend.core.krps_client import krps_client
 from backend.phases.instances import ascent_phase, maneuver_phase
 from backend.phases.registry import PhaseRegistry
 from backend.services.telemetry_service import telemetry_service
@@ -30,6 +31,7 @@ async def lifespan(_: FastAPI):
     phase_registry.register(ascent_phase)
     phase_registry.register(maneuver_phase)
     yield
+    await krps_client.stop()
     game_connection.disconnect()
 
 
@@ -48,7 +50,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(cameras.router)
 app.include_router(connection.router)
+app.include_router(telemetry.router)
 app.include_router(vessel.router)
 app.include_router(target.router)
 app.include_router(ascent.router)

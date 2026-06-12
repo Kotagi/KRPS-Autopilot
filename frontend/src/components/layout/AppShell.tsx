@@ -6,8 +6,10 @@ import { MissionStatusBar } from "./MissionStatusBar";
 import { DEFAULT_ROUTE } from "../../navigation/routes";
 import { AutopilotScreen } from "../../screens/AutopilotScreen";
 import { FlightDeckScreen } from "../../screens/FlightDeckScreen";
+import { OpticsScreen } from "../../screens/OpticsScreen";
 import { MapScreen } from "../../screens/MapScreen";
 import { MissionScreen } from "../../screens/MissionScreen";
+import { SettingsScreen } from "../../screens/SettingsScreen";
 import { VehicleScreen } from "../../screens/VehicleScreen";
 
 export function AppShell() {
@@ -21,10 +23,12 @@ export function AppShell() {
           <Routes>
             <Route path="/" element={<Navigate to={DEFAULT_ROUTE.path} replace />} />
             <Route path="/flight" element={<FlightDeckScreen />} />
+            <Route path="/optics" element={<OpticsScreen />} />
             <Route path="/autopilot" element={<AutopilotScreen />} />
             <Route path="/map" element={<MapScreen />} />
             <Route path="/mission" element={<MissionScreen />} />
             <Route path="/vehicle" element={<VehicleScreen />} />
+            <Route path="/settings" element={<SettingsScreen />} />
             <Route path="*" element={<Navigate to={DEFAULT_ROUTE.path} replace />} />
           </Routes>
         </main>

@@ -9,8 +9,11 @@ import type {
   VesselControlsState,
   VesselDeltaV,
   VesselTelemetry,
+  NavballSourceStatus,
   WsEvent,
 } from "../api/types";
+import { telemetryClientDebug } from "../debug/telemetryClientDebug";
+import { navballTelemetryUnchanged } from "../debug/telemetryCompare";
 import { useAppStore } from "../store/appStore";
 
 function wsUrl(): string {
@@ -28,6 +31,7 @@ export function useWebSocket() {
   const setManeuver = useAppStore((s) => s.setManeuver);
   const setAscent = useAppStore((s) => s.setAscent);
   const setTarget = useAppStore((s) => s.setTarget);
+  const setNavballSource = useAppStore((s) => s.setNavballSource);
   const setWsConnected = useAppStore((s) => s.setWsConnected);
   const setLastError = useAppStore((s) => s.setLastError);
 
@@ -64,9 +68,16 @@ export function useWebSocket() {
           case "vessel_controls":
             setControls(data.payload as unknown as VesselControlsState);
             break;
-          case "telemetry":
-            setTelemetry(data.payload as unknown as VesselTelemetry);
+          case "telemetry": {
+            const telemetry = data.payload as unknown as VesselTelemetry;
+            const storeSkipped = navballTelemetryUnchanged(
+              useAppStore.getState().telemetry,
+              telemetry
+            );
+            telemetryClientDebug.recordTelemetryMessage(telemetry, { storeSkipped });
+            setTelemetry(telemetry);
             break;
+          }
           case "delta_v":
             setDeltaV(data.payload as unknown as VesselDeltaV);
             break;
@@ -81,6 +92,9 @@ export function useWebSocket() {
             break;
           case "target":
             setTarget(data.payload as unknown as TargetStatus);
+            break;
+          case "navball_source":
+            setNavballSource(data.payload as unknown as NavballSourceStatus);
             break;
           case "error":
             setLastError(
@@ -101,6 +115,7 @@ export function useWebSocket() {
   }, [
     setAscent,
     setTarget,
+    setNavballSource,
     setConnection,
     setControls,
     setDeltaV,

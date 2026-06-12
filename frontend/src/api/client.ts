@@ -1,6 +1,7 @@
 import type {
   AscentConfig,
   AscentStatus,
+  CameraListResponse,
   ConnectionStatus,
   ManeuverExecuteRequest,
   ManeuverFineTunePreview,
@@ -11,6 +12,8 @@ import type {
   ManeuverPlanRequest,
   ManeuverPlanResult,
   ManeuverStatus,
+  NavballSource,
+  NavballSourceStatus,
   TargetStatus,
   TargetTree,
   VesselControlsState,
@@ -44,6 +47,14 @@ export const api = {
     }),
   connectionStatus: () =>
     request<ConnectionStatus>("/api/connection/status"),
+  navballSourceStatus: () =>
+    request<NavballSourceStatus>("/api/telemetry/navball-source"),
+  setNavballSource: (source: NavballSource) =>
+    request<NavballSourceStatus>("/api/telemetry/navball-source", {
+      method: "PUT",
+      body: JSON.stringify({ source }),
+    }),
+  krpsDebug: () => request<Record<string, unknown>>("/api/telemetry/krps-debug"),
   vesselControls: () => request<VesselControlsState>("/api/vessel/controls"),
   stage: () =>
     request<VesselControlsState>("/api/vessel/stage", { method: "POST" }),
@@ -127,4 +138,5 @@ export const api = {
   abortManeuver: () =>
     request<ManeuverStatus>("/api/maneuver/abort", { method: "POST" }),
   maneuverStatus: () => request<ManeuverStatus>("/api/maneuver/status"),
+  cameras: () => request<CameraListResponse>("/api/cameras"),
 };

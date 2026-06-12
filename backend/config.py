@@ -27,3 +27,14 @@ TELEMETRY_DEBUG_LOG_INTERVAL_S = 5.0
 TELEMETRY_DEBUG_SLOW_PHASE_MS = 50.0
 # Slow loop: orbit resources, phases, connection status.
 TELEMETRY_SLOW_INTERVAL_S = 1.0
+
+# KRPS in-game plugin telemetry (TCP newline-delimited JSON).
+KRPS_ADDRESS = "127.0.0.1"
+KRPS_PORT = 50002
+KRPS_RECONNECT_INTERVAL_S = 1.0
+
+# Just Read The Instructions Hullcam stream server (in-game HTTP).
+JRTI_HOST = "127.0.0.1"
+JRTI_PORT = 8080
+JRTI_BASE_URL = f"http://{JRTI_HOST}:{JRTI_PORT}"
+JRTI_CAMERAS_PATH = "/cameras"

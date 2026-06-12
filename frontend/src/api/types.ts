@@ -8,6 +8,14 @@ export type PhaseState =
 
 export type AscentPath = "classic" | "gt" | "pvg";
 
+export type NavballSource = "krpc" | "krps";
+
+export interface NavballSourceStatus {
+  source: NavballSource;
+  krps_connected: boolean;
+  krpc_connected: boolean;
+}
+
 export interface ConnectionStatus {
   connected: boolean;
   api_ready: boolean;
@@ -52,6 +60,13 @@ export interface VesselTelemetry {
   prograde?: [number, number, number];
   maneuver_node_count?: number;
   next_node_time_to_s?: number | null;
+  /** Unix seconds from server; used for client latency debug. */
+  server_ts?: number;
+  /** Unix milliseconds from server; preferred for latency debug. */
+  server_ts_ms?: number;
+  /** Monotonic telemetry sequence from server. */
+  server_seq?: number;
+  navball_source?: NavballSource;
 }
 
 export interface VesselDeltaV {
@@ -372,3 +387,19 @@ export const defaultAscentConfig = (): AscentConfig => ({
   gt: defaultGTConfig(),
   pvg: defaultPVGConfig(),
 });
+
+export interface CameraSummary {
+  id: number;
+  name: string;
+  streaming: boolean;
+  viewer_count: number;
+  snapshot_url: string | null;
+  stream_url: string | null;
+}
+
+export interface CameraListResponse {
+  available: boolean;
+  source: string;
+  cameras: CameraSummary[];
+  error: string | null;
+}

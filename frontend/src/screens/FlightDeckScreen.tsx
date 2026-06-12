@@ -1,8 +1,14 @@
+import { useEffect, useState } from "react";
+
+import { KrpsDebugPanel } from "../components/flightdeck/KrpsDebugPanel";
 import { NavBall } from "../components/flightdeck/NavBall";
+import { NavballSourceSelector } from "../components/flightdeck/NavballSourceSelector";
 import { OrbitReadout } from "../components/flightdeck/OrbitReadout";
 import { FlightResourcesColumn } from "../components/flightdeck/FlightResourcesColumn";
+import { TelemetryDebugPanel } from "../components/debug/TelemetryDebugPanel";
 import { ScreenFrame } from "../components/layout/ScreenFrame";
 import { VesselControls } from "../components/vessel/VesselControls";
+import { appDebug } from "../debug/appDebug";
 import { useAppStore } from "../store/appStore";
 
 export function FlightDeckScreen() {
@@ -11,6 +17,13 @@ export function FlightDeckScreen() {
   const deltaV = useAppStore((s) => s.deltaV);
   const connection = useAppStore((s) => s.connection);
   const controls = useAppStore((s) => s.controls);
+  const [debugEnabled, setDebugEnabled] = useState(() => appDebug.isEnabled());
+
+  useEffect(() => {
+    return appDebug.subscribe(() => {
+      setDebugEnabled(appDebug.isEnabled());
+    });
+  }, []);
 
   return (
     <ScreenFrame
@@ -20,7 +33,10 @@ export function FlightDeckScreen() {
       <div className="flight-deck-grid">
         <section className="panel flight-deck-module flight-deck-module--attitude">
           <h3>Attitude</h3>
+          <NavballSourceSelector />
           <NavBall telemetry={telemetry} connected={connection.connected} />
+          {debugEnabled && <KrpsDebugPanel />}
+          {debugEnabled && <TelemetryDebugPanel />}
         </section>
 
         <section className="panel flight-deck-module flight-deck-module--primary">
