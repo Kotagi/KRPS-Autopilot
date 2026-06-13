@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from backend.api.routes import ascent, cameras, connection, maneuver, target, telemetry, vessel, ws
+from backend.api.routes import ascent, cameras, connection, maneuver, map, target, telemetry, vessel, ws
 from backend.config import FRONTEND_DIST
 from backend.core.async_utils import set_main_loop
 from backend.core.connection import game_connection
@@ -57,6 +57,7 @@ app.include_router(vessel.router)
 app.include_router(target.router)
 app.include_router(ascent.router)
 app.include_router(maneuver.router)
+app.include_router(map.router)
 app.include_router(ws.router)
 
 

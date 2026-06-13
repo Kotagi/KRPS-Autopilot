@@ -39,3 +39,6 @@ JRTI_PORT = 8080
 JRTI_BASE_URL = f"http://{JRTI_HOST}:{JRTI_PORT}"
 JRTI_CAMERAS_PATH = "/cameras"
 JRTI_STREAM_CHUNK_SIZE = 8192
+
+# KspWebMap in-game mod (MyMods) — orbital map telemetry + body textures.
+KSP_WEB_MAP_URL = "http://127.0.0.1:8750"

@@ -3,10 +3,12 @@ import type { ReactNode } from "react";
 export function ScreenFrame({
   title,
   tagline,
+  bodyClassName,
   children,
 }: {
   title: string;
   tagline?: string;
+  bodyClassName?: string;
   children: ReactNode;
 }) {
   return (
@@ -17,7 +19,9 @@ export function ScreenFrame({
           {tagline && <p className="screen-frame-tagline">{tagline}</p>}
         </div>
       </header>
-      <div className="screen-frame-body">{children}</div>
+      <div className={bodyClassName ? `screen-frame-body ${bodyClassName}` : "screen-frame-body"}>
+        {children}
+      </div>
     </div>
   );
 }

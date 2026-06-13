@@ -1,16 +1,14 @@
-import { ComingSoonScreen } from "./ComingSoonScreen";
+import { OrbitalMapView } from "../components/map/OrbitalMapView";
+import { ScreenFrame } from "../components/layout/ScreenFrame";
 
 export function MapScreen() {
   return (
-    <ComingSoonScreen
+    <ScreenFrame
       title="Trajectory"
-      tagline="In-game map view with patched conics and body selection"
-      modules={[
-        "Active vessel orbit and maneuver nodes",
-        "SOI transitions and encounter markers",
-        "Select catalog bodies and show their trajectories",
-        "2D/3D view toggle",
-      ]}
-    />
+      tagline="3D solar system map with planet orbits, textures, tilt, and spin"
+      bodyClassName="screen-frame-body--map"
+    >
+      <OrbitalMapView />
+    </ScreenFrame>
   );
 }

@@ -1,0 +1,261 @@
+.ksp-solar-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 460px;
+  background: #071019;
+  border: 1px solid #284156;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ksp-solar-hud {
+  padding: 8px 10px;
+  background: #101d2a;
+  border-bottom: 1px solid #284156;
+  font-size: 12px;
+  color: #e7f0f7;
+  flex-shrink: 0;
+}
+
+.ksp-solar-hud-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.ksp-solar-hud-row:last-child {
+  margin-bottom: 0;
+}
+
+.ksp-solar-hud-v2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 0 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #284156;
+  font-size: 11px;
+  color: #8ecae6;
+}
+
+.ksp-solar-hud-v2-phase {
+  font-weight: 600;
+  color: #ffd166;
+}
+
+.ksp-solar-hud-v2-hint {
+  color: #6a8a9e;
+  font-style: italic;
+}
+
+.ksp-solar-hud-v3 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 0 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #284156;
+  font-size: 11px;
+  color: #a8dadc;
+}
+
+.ksp-solar-hud-v3-phase {
+  font-weight: 600;
+  color: #90be6d;
+}
+
+.ksp-solar-hud-v3-hint {
+  color: #6a8a9e;
+  font-style: italic;
+}
+
+.ksp-solar-hud button {
+  background: #142536;
+  border: 1px solid #284156;
+  color: #9db1c3;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.ksp-solar-hud button.active {
+  color: #67d3ff;
+  border-color: rgba(103, 211, 255, 0.55);
+}
+
+.ksp-solar-hud button.ksp-solar-unfocus {
+  color: #ffd166;
+  border-color: rgba(255, 209, 102, 0.55);
+}
+
+.ksp-solar-customize-map-dev,
+.ksp-solar-duna-color-dev {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  background: #0c1824;
+  border: 1px dashed #3d5a73;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #9db1c3;
+}
+
+.ksp-solar-customize-map-dev-toggle,
+.ksp-solar-duna-color-dev-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #ffd166;
+}
+
+.ksp-solar-customize-map-dev-button {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0c1824;
+  background: #ffd166;
+  border: 1px solid #e6bc5c;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ksp-solar-customize-map-dev-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ksp-solar-customize-map-dev-controls,
+.ksp-solar-duna-color-dev-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.ksp-solar-customize-map-dev-prompt {
+  flex: 1 1 100%;
+  color: #8ecae6;
+}
+
+.ksp-solar-customize-map-dev-selected {
+  font-weight: 600;
+  color: #ffd166;
+}
+
+.ksp-solar-customize-map-dev input[type="color"],
+.ksp-solar-duna-color-dev input[type="color"] {
+  width: 36px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #284156;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.ksp-solar-customize-map-dev-hex,
+.ksp-solar-duna-color-dev-hex {
+  font-size: 11px;
+  color: #67d3ff;
+}
+
+.ksp-solar-customize-map-dev-hint,
+.ksp-solar-duna-color-dev-hint {
+  flex: 1 1 100%;
+  font-size: 10px;
+  color: #6a8a9e;
+}
+
+.ksp-solar-customize-map-dev-hint code,
+.ksp-solar-duna-color-dev-hint code {
+  font-size: 10px;
+  color: #8ecae6;
+}
+
+.ksp-solar-truth-banner {
+  font-size: 11px;
+  color: #9db1c3;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.ksp-solar-warning {
+  color: #ff6b6b;
+  margin-top: 4px;
+}
+
+.ksp-solar-viewport {
+  flex: 1;
+  min-height: 380px;
+  position: relative;
+}
+
+.ksp-solar-2d-placeholder {
+  padding: 24px;
+  color: #9db1c3;
+  text-align: center;
+}
+
+.ksp-solar-body-orbit-qa {
+  margin-top: 6px;
+  max-height: 180px;
+  overflow: auto;
+  font-size: 10px;
+}
+
+.ksp-solar-body-orbit-qa table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ksp-solar-body-orbit-qa th,
+.ksp-solar-body-orbit-qa td {
+  border: 1px solid #284156;
+  padding: 2px 6px;
+  text-align: left;
+}
+
+.ksp-solar-body-orbit-qa th {
+  color: #67d3ff;
+  background: #142536;
+}
+
+.ksp-solar-panel--fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  width: 100vw;
+  height: 100vh;
+  min-height: 0;
+  max-height: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.ksp-solar-panel--fullscreen .ksp-solar-viewport {
+  flex: 1;
+  min-height: 0;
+}
+
+.ksp-solar-panel--fullscreen .ksp-solar-body-orbit-qa {
+  max-height: 120px;
+}
+
+body[data-solar-fullscreen="1"] .page {
+  pointer-events: none;
+}
+
+body[data-solar-fullscreen="1"] .ksp-solar-panel--fullscreen {
+  pointer-events: auto;
+}
