@@ -9,10 +9,13 @@ from backend.models.maneuver import (
     ManeuverExecuteRequest,
     ManeuverFineTuneRequest,
     ManeuverFineTuneResult,
+    ManeuverNodeSummary,
     ManeuverOperationId,
     ManeuverPlanRequest,
     ManeuverPlanResult,
     ManeuverStatus,
+    ManeuverWarpRequest,
+    ManeuverWarpResult,
 )
 from backend.phases.base import Phase
 from backend.services.maneuver_service import maneuver_service
@@ -74,6 +77,20 @@ class ManeuverPhase(Phase):
         removed = maneuver_service.clear_nodes()
         self._emit_status()
         return removed
+
+    def delete_node(self, node_index: int) -> list[ManeuverNodeSummary]:
+        if self._task is not None and not self._task.done():
+            raise PhaseConflictError("Cannot delete nodes while a maneuver burn is running")
+        nodes = maneuver_service.delete_node(node_index)
+        self._emit_status()
+        return nodes
+
+    def warp_to_next_node(self, request: ManeuverWarpRequest) -> ManeuverWarpResult:
+        if self._task is not None and not self._task.done():
+            raise PhaseConflictError("Cannot warp while a maneuver burn is running")
+        result = maneuver_service.warp_to_next_node(request.lead_time_s)
+        self._emit_status()
+        return result
 
     async def start(self, request: ManeuverExecuteRequest | None = None) -> ManeuverStatus:
         if self._task is not None and not self._task.done():

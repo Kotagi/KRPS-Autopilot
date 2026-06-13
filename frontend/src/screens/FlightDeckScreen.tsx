@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 
+import { TelemetryDebugPanel } from "../components/debug/TelemetryDebugPanel";
+import { FlightDeckAutopilotModule } from "../components/flightdeck/FlightDeckAutopilotModule";
+import { FlightDeckCameraModule } from "../components/flightdeck/FlightDeckCameraModule";
+import { FlightDeckFuelModule } from "../components/flightdeck/FlightDeckFuelModule";
+import { FlightDeckStatusBar } from "../components/flightdeck/FlightDeckStatusBar";
 import { KrpsDebugPanel } from "../components/flightdeck/KrpsDebugPanel";
 import { NavBall } from "../components/flightdeck/NavBall";
 import { NavballSourceSelector } from "../components/flightdeck/NavballSourceSelector";
 import { OrbitReadout } from "../components/flightdeck/OrbitReadout";
-import { FlightResourcesColumn } from "../components/flightdeck/FlightResourcesColumn";
-import { TelemetryDebugPanel } from "../components/debug/TelemetryDebugPanel";
 import { ScreenFrame } from "../components/layout/ScreenFrame";
 import { VesselControls } from "../components/vessel/VesselControls";
 import { appDebug } from "../debug/appDebug";
@@ -16,7 +19,6 @@ export function FlightDeckScreen() {
   const stageResources = useAppStore((s) => s.stageResources);
   const deltaV = useAppStore((s) => s.deltaV);
   const connection = useAppStore((s) => s.connection);
-  const controls = useAppStore((s) => s.controls);
   const [debugEnabled, setDebugEnabled] = useState(() => appDebug.isEnabled());
 
   useEffect(() => {
@@ -28,58 +30,53 @@ export function FlightDeckScreen() {
   return (
     <ScreenFrame
       title="Flight Deck"
-      tagline="Live cockpit — attitude, orbit, resources, and vessel controls"
+      tagline="Cockpit — attitude, optics, guidance, and propellant"
     >
-      <div className="flight-deck-grid">
-        <section className="panel flight-deck-module flight-deck-module--attitude">
-          <h3>Attitude</h3>
-          <NavballSourceSelector />
-          <NavBall telemetry={telemetry} connected={connection.connected} />
-          {debugEnabled && <KrpsDebugPanel />}
-          {debugEnabled && <TelemetryDebugPanel />}
-        </section>
-
-        <section className="panel flight-deck-module flight-deck-module--primary">
-          <h3>Orbit &amp; environment</h3>
-          <OrbitReadout telemetry={telemetry} connected={connection.connected} />
-        </section>
-
-        <section className="panel flight-deck-module flight-deck-module--resources">
-          <h3>Resources</h3>
-          <FlightResourcesColumn
-            stageResources={stageResources}
+      <div className="screen-frame-body screen-frame-body--cockpit">
+        <div className="cockpit-layout">
+          <FlightDeckStatusBar
+            connection={connection}
+            telemetry={telemetry}
             deltaV={deltaV}
           />
-        </section>
 
-        <section className="panel flight-deck-module flight-deck-module--strip">
-          <div className="flight-deck-strip">
-            <span>
-              {connection.vessel_name ?? telemetry?.vessel_name ?? "No vessel"} ·{" "}
-              {telemetry?.situation ?? connection.situation ?? "—"}
-            </span>
-            <span>
-              Pitch {(telemetry?.pitch_deg ?? 0).toFixed(1)}° · Roll{" "}
-              {(telemetry?.roll_deg ?? 0).toFixed(1)}° · AoA{" "}
-              {(telemetry?.angle_of_attack_deg ?? 0).toFixed(1)}°
-            </span>
-            <span>
-              Δv {Math.round(deltaV?.total_vac_ms ?? 0)} m/s · TWR{" "}
-              {(deltaV?.surface_twr ?? 0).toFixed(2)}
-            </span>
+          <div className="cockpit-main-deck">
+            <section className="cockpit-module cockpit-module--controls panel">
+              <header className="cockpit-module-header">
+                <span className="cockpit-module-label">Vessel controls</span>
+              </header>
+              <VesselControls variant="cockpit" />
+            </section>
+
+            <FlightDeckCameraModule />
+
+            <section className="cockpit-module cockpit-module--guidance panel">
+              <header className="cockpit-module-header">
+                <span className="cockpit-module-label">Guidance</span>
+              </header>
+              <OrbitReadout
+                telemetry={telemetry}
+                connected={connection.connected}
+                compact
+              />
+              <FlightDeckAutopilotModule />
+            </section>
           </div>
-          <VesselControls compact />
-          {!connection.connected && (
-            <div className="meta flight-deck-strip-hint">
-              Connect kRPC from the status bar to drive the vessel from here.
-            </div>
-          )}
-          {connection.connected && controls && (
-            <div className="meta flight-deck-strip-hint">
-              Stage, SAS, RCS, and lights are live — same API as Autopilot screen.
-            </div>
-          )}
-        </section>
+
+          <div className="cockpit-instruments-row">
+            <section className="panel cockpit-attitude-block">
+              <NavballSourceSelector />
+              <NavBall telemetry={telemetry} connected={connection.connected} />
+              {debugEnabled && <KrpsDebugPanel />}
+              {debugEnabled && <TelemetryDebugPanel />}
+            </section>
+
+            <FlightDeckFuelModule
+              stageResources={stageResources}
+              deltaV={deltaV}
+            />
+          </div>
+        </div>
       </div>
     </ScreenFrame>
   );

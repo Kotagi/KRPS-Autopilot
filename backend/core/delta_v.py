@@ -1,9 +1,11 @@
-"""Stage and total delta-v estimates from kRPC vessel staging data."""
+"""Stage and total delta-v estimates from MechJeb (preferred) or kRPC staging data."""
 
 from __future__ import annotations
 
 import math
 from typing import Any
+
+from backend.core.connection import GameConnection
 
 G0 = 9.80665
 
@@ -38,14 +40,25 @@ def _stage_isp_vac(vessel: Any, stage: int) -> float:
     return isp_sum / thrust_sum
 
 
-def _stage_delta_v(vessel: Any, stage: int) -> float:
+def _stage_masses(vessel: Any, stage: int) -> tuple[float, float]:
     try:
-        resources = vessel.resources_in_decouple_stage(stage, cumulative=False)
-        wet = float(resources.mass)
-        dry = float(resources.dry_mass)
+        parts = vessel.parts.in_decouple_stage(stage)
     except Exception:
-        return 0.0
+        return 0.0, 0.0
 
+    wet = 0.0
+    dry = 0.0
+    for part in parts:
+        try:
+            wet += float(part.mass)
+            dry += float(part.dry_mass)
+        except Exception:
+            continue
+    return wet, dry
+
+
+def _stage_delta_v(vessel: Any, stage: int) -> float:
+    wet, dry = _stage_masses(vessel, stage)
     if wet <= dry or wet <= 0:
         return 0.0
 
@@ -61,8 +74,41 @@ def _stage_delta_v(vessel: Any, stage: int) -> float:
     return isp * G0 * math.log(wet / dry)
 
 
-def read_vessel_delta_v(vessel: Any) -> dict[str, float | int]:
+def _read_mechjeb_delta_v(game: GameConnection | None) -> dict[str, float | int] | None:
+    if game is None:
+        return None
+
+    try:
+        bridge = getattr(game.conn, "kprs_autopilot", None)
+    except Exception:
+        return None
+
+    if bridge is None:
+        return None
+
+    try:
+        if not bridge.available:
+            return None
+        vessel = game.active_vessel()
+        current_stage = int(vessel.control.current_stage)
+        return {
+            "current_stage": current_stage,
+            "stage_vac_ms": float(bridge.stage_delta_v_vacuum_ms),
+            "total_vac_ms": float(bridge.total_delta_v_vacuum_ms),
+            "surface_twr": float(bridge.surface_twr),
+        }
+    except Exception:
+        return None
+
+
+def read_vessel_delta_v(
+    vessel: Any, game: GameConnection | None = None
+) -> dict[str, float | int]:
     """Return total and current-stage delta-v estimates in m/s."""
+    mechjeb = _read_mechjeb_delta_v(game)
+    if mechjeb is not None:
+        return mechjeb
+
     try:
         current_stage = int(vessel.control.current_stage)
     except Exception:

@@ -1,8 +1,12 @@
 import type { StageFuel } from "../../api/types";
 
-export function FuelGauge({ stage }: { stage: StageFuel }) {
-  const ticks = [100, 75, 50, 25, 0];
+const TICK_VALUES = [100, 75, 50, 25, 0] as const;
 
+function fuelBandTop(percent: number): string {
+  return `${100 - percent}%`;
+}
+
+export function FuelGauge({ stage }: { stage: StageFuel }) {
   return (
     <div
       className={`fuel-gauge${stage.is_active ? " fuel-gauge--active" : ""}`}
@@ -12,17 +16,21 @@ export function FuelGauge({ stage }: { stage: StageFuel }) {
         <div className="fuel-gauge-face">
           <div className="fuel-gauge-unit">F</div>
           <div className="fuel-gauge-scale">
-            {ticks.map((tick) => (
-              <div key={tick} className="fuel-gauge-tick-row">
+            {TICK_VALUES.map((tick) => (
+              <div
+                key={tick}
+                className="fuel-gauge-tick"
+                style={{ top: fuelBandTop(tick) }}
+              >
                 <span className="fuel-gauge-tick-line" />
                 <span className="fuel-gauge-tick-label">{tick}</span>
               </div>
             ))}
+            <div
+              className="fuel-gauge-indicator"
+              style={{ top: fuelBandTop(stage.percent) }}
+            />
           </div>
-          <div
-            className="fuel-gauge-indicator"
-            style={{ top: `${100 - stage.percent}%` }}
-          />
         </div>
       </div>
       <div className="fuel-gauge-label">{stage.label}</div>
@@ -39,7 +47,7 @@ export function FuelGaugeRow({ stages }: { stages: StageFuel[] }) {
   return (
     <div className="fuel-gauge-row">
       {stages.map((stage) => (
-        <FuelGauge key={`${stage.label}-${stage.stage_number}`} stage={stage} />
+        <FuelGauge key={stage.group_id} stage={stage} />
       ))}
     </div>
   );

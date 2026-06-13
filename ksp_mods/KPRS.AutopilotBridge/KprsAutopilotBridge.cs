@@ -34,6 +34,20 @@ namespace KPRS.AutopilotBridge {
             return GetComputerModule.Invoke(core, new object[] { "MechJebModuleAscentSettings" });
         }
 
+        private static MechJebModuleInfoItems GetInfoItems() {
+            Vessel vessel = FlightGlobals.ActiveVessel;
+            if (vessel == null) {
+                return null;
+            }
+
+            MechJebCore core = vessel.GetMasterMechJeb();
+            if (core == null) {
+                return null;
+            }
+
+            return core.GetComputerModule<MechJebModuleInfoItems>();
+        }
+
         private static double GetEditableMeters(object editable) {
             if (editable == null) {
                 return 0.0;
@@ -181,6 +195,45 @@ namespace KPRS.AutopilotBridge {
                 } else {
                     SetEditableMeters(desiredApoapsis, apoM);
                 }
+            }
+        }
+
+        /// <summary>Current stage vacuum delta-v from MechJeb's stage stats (same as the Δv window).</summary>
+        [KRPCProperty]
+        public static double StageDeltaVVacuumMs {
+            get {
+                MechJebModuleInfoItems info = GetInfoItems();
+                if (info == null) {
+                    throw new InvalidOperationException("MechJeb info items are not available");
+                }
+
+                return info.StageDeltaVVacuum();
+            }
+        }
+
+        /// <summary>Total remaining vacuum delta-v from MechJeb's stage stats.</summary>
+        [KRPCProperty]
+        public static double TotalDeltaVVacuumMs {
+            get {
+                MechJebModuleInfoItems info = GetInfoItems();
+                if (info == null) {
+                    throw new InvalidOperationException("MechJeb info items are not available");
+                }
+
+                return info.TotalDeltaVVaccum();
+            }
+        }
+
+        /// <summary>Surface TWR from MechJeb info items.</summary>
+        [KRPCProperty]
+        public static double SurfaceTwr {
+            get {
+                MechJebModuleInfoItems info = GetInfoItems();
+                if (info == null) {
+                    throw new InvalidOperationException("MechJeb info items are not available");
+                }
+
+                return info.SurfaceTWR();
             }
         }
     }

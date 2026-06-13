@@ -52,6 +52,7 @@ class ManeuverParamSpec(BaseModel):
     default: float | int | bool | None = None
     min: float | None = None
     max: float | None = None
+    for_target_type: Literal["body", "vessel"] | None = None
 
 
 class ManeuverOperationSpec(BaseModel):
@@ -96,6 +97,17 @@ class ManeuverExecuteRequest(BaseModel):
     tolerance: float | None = None
     autowarp: bool = True
     lead_time_s: float = 3.0
+
+
+class ManeuverWarpRequest(BaseModel):
+    lead_time_s: float = 3.0
+
+
+class ManeuverWarpResult(BaseModel):
+    node_ut: float
+    warp_ut: float
+    time_to_node_s: float
+    delta_v_ms: float
 
 
 class ManeuverStatus(BaseModel):

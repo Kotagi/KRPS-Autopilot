@@ -27,6 +27,7 @@ from backend.models.maneuver import (
     ManeuverOperationSpec,
     ManeuverPlanRequest,
     ManeuverPlanResult,
+    ManeuverWarpResult,
     TimeReferenceId,
 )
 from backend.services.target_service import target_service
@@ -99,6 +100,22 @@ class ManeuverService:
         vessel.control.remove_nodes()
         self._node_tolerances.clear()
         return count
+
+    def delete_node(self, node_index: int) -> list[ManeuverNodeSummary]:
+        self._game.require_flight()
+        vessel = self._game.active_vessel()
+        nodes = self._ordered_nodes(vessel)
+        if not nodes:
+            raise MechJebNotReadyError("No maneuver nodes to delete.")
+        if node_index < 0 or node_index >= len(nodes):
+            raise MechJebNotReadyError(
+                f"Node index {node_index} is out of range (0–{len(nodes) - 1})."
+            )
+
+        node = nodes[node_index]
+        self._node_tolerances.pop(self._node_ut_key(node), None)
+        node.remove()
+        return self.list_nodes()
 
     def preview_fine_tune(self, node_index: int = 0) -> ManeuverFineTunePreview:
         self._game.require_flight()
@@ -228,7 +245,13 @@ class ManeuverService:
             self.clear_nodes()
 
         planner = self._game.mechjeb.maneuver_planner
-        operation = configure_operation(planner, self._game.mechjeb, request)
+        target_status = target_service.get_status()
+        operation = configure_operation(
+            planner,
+            self._game.mechjeb,
+            request,
+            target_status.target_type,
+        )
 
         try:
             created = operation.make_nodes()
@@ -308,6 +331,42 @@ class ManeuverService:
             executor.execute_one_node()
         else:
             executor.execute_all_nodes()
+
+    def warp_to_next_node(self, lead_time_s: float = 3.0) -> ManeuverWarpResult:
+        self._game.require_flight()
+        if self.executor_enabled():
+            raise MechJebNotReadyError("Cannot warp while a maneuver burn is active.")
+
+        vessel = self._game.active_vessel()
+        nodes = self._ordered_nodes(vessel)
+        if not nodes:
+            raise MechJebNotReadyError("No maneuver nodes to warp to.")
+
+        node = nodes[0]
+        ut_now = float(self._game.space_center.ut)
+        delta_v_ms = float(node.delta_v)
+        half_burn_s = 0.0
+        mass = float(vessel.mass)
+        thrust = float(vessel.available_thrust) or float(vessel.max_thrust)
+        if thrust > 0 and mass > 0:
+            half_burn_s = (delta_v_ms / (thrust / mass)) / 2.0
+
+        warp_ut = float(node.ut) - half_burn_s - float(lead_time_s)
+        if warp_ut <= ut_now:
+            return ManeuverWarpResult(
+                node_ut=float(node.ut),
+                warp_ut=ut_now,
+                time_to_node_s=float(node.time_to),
+                delta_v_ms=delta_v_ms,
+            )
+
+        self._game.space_center.warp_to(warp_ut)
+        return ManeuverWarpResult(
+            node_ut=float(node.ut),
+            warp_ut=warp_ut,
+            time_to_node_s=float(node.time_to),
+            delta_v_ms=delta_v_ms,
+        )
 
     def abort_execution(self) -> None:
         if not self._game.is_connected():

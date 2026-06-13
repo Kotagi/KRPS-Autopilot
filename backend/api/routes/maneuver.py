@@ -17,6 +17,8 @@ from backend.models.maneuver import (
     ManeuverPlanRequest,
     ManeuverPlanResult,
     ManeuverStatus,
+    ManeuverWarpRequest,
+    ManeuverWarpResult,
 )
 from backend.phases.instances import maneuver_phase
 from backend.services.maneuver_service import maneuver_service
@@ -170,6 +172,23 @@ async def plan(
 
 
 
+@router.delete("/nodes/{node_index}")
+async def delete_node(
+    node_index: int,
+    _: None = Depends(require_flight),
+) -> dict[str, list[dict]]:
+    try:
+        nodes = await asyncio.to_thread(maneuver_phase.delete_node, node_index)
+        await telemetry_service.broadcast_maneuver(maneuver_phase.get_status())
+        return {"nodes": [node.model_dump() for node in nodes]}
+    except PhaseConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except MechJebNotReadyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
 @router.delete("/nodes")
 
 async def clear_nodes(_: None = Depends(require_flight)) -> dict[str, int]:
@@ -192,6 +211,27 @@ async def clear_nodes(_: None = Depends(require_flight)) -> dict[str, int]:
 
 
 
+
+
+@router.post("/warp", response_model=ManeuverWarpResult)
+async def warp_to_node(
+    request: ManeuverWarpRequest | None = None,
+    _: None = Depends(require_flight),
+) -> ManeuverWarpResult:
+    try:
+        result = await asyncio.to_thread(
+            maneuver_phase.warp_to_next_node,
+            request or ManeuverWarpRequest(),
+        )
+        await telemetry_service.broadcast_maneuver(maneuver_phase.get_status())
+        return result
+    except PhaseConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except MechJebNotReadyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        await telemetry_service.broadcast_error(str(exc), "maneuver")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @router.post("/execute", response_model=ManeuverStatus)

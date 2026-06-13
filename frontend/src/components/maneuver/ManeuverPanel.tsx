@@ -14,7 +14,7 @@ import type {
 import { useAppStore } from "../../store/appStore";
 
 const ORBIT_TIME_REFERENCES: { value: TimeReferenceId; label: string }[] = [
-  { value: "computed", label: "Computed" },
+  { value: "computed", label: "Optimum time" },
   { value: "x_from_now", label: "X from now" },
   { value: "apoapsis", label: "Apoapsis" },
   { value: "periapsis", label: "Periapsis" },
@@ -26,7 +26,7 @@ const ORBIT_TIME_REFERENCES: { value: TimeReferenceId; label: string }[] = [
 ];
 
 const TARGET_TIME_REFERENCES: { value: TimeReferenceId; label: string }[] = [
-  { value: "computed", label: "Computed" },
+  { value: "computed", label: "Optimum time" },
   { value: "x_from_now", label: "X from now" },
   { value: "closest_approach", label: "Closest approach" },
   { value: "rel_ascending", label: "Rel. ascending" },
@@ -119,7 +119,7 @@ export function ManeuverPanel() {
 
   const [operations, setOperations] = useState<ManeuverOperationSpec[]>([]);
   const [operation, setOperation] = useState<ManeuverOperationId>("circularize");
-  const [timeReference, setTimeReference] = useState<TimeReferenceId>("periapsis");
+  const [timeReference, setTimeReference] = useState<TimeReferenceId>("computed");
   const [leadTimeS, setLeadTimeS] = useState(300);
   const [clearExisting, setClearExisting] = useState(true);
   const [params, setParams] = useState<Record<string, number | boolean>>({});
@@ -139,6 +139,18 @@ export function ManeuverPanel() {
     () => operations.find((op) => op.id === operation),
     [operations, operation]
   );
+
+  const visibleParams = useMemo(() => {
+    if (!selectedSpec) return [];
+
+    return selectedSpec.params.filter((field) => {
+      if (!field.for_target_type) return true;
+      if (!target?.mechjeb_locked || target.target_type === "none") {
+        return field.for_target_type === "vessel";
+      }
+      return field.for_target_type === target.target_type;
+    });
+  }, [selectedSpec, target]);
 
   const timeReferences = useMemo(
     () =>
@@ -160,10 +172,16 @@ export function ManeuverPanel() {
       return;
     }
 
+    setTimeReference("computed");
+  }, [operation, selectedSpec?.timed]);
+
+  useEffect(() => {
+    if (!selectedSpec?.timed) return;
+
     if (!timeReferences.some((ref) => ref.value === timeReference)) {
       setTimeReference(timeReferences[0]?.value ?? "computed");
     }
-  }, [operation, selectedSpec?.timed, timeReferences, timeReference]);
+  }, [selectedSpec?.timed, timeReferences, timeReference]);
 
   const running = maneuver?.state === "running";
   const ready = connection.connected;
@@ -245,9 +263,30 @@ export function ManeuverPanel() {
     try {
       await api.clearManeuverNodes();
       setNodes([]);
+      setTuneNodeIndex(0);
       setManeuver(await api.maneuverStatus());
     } catch (err) {
       setLastError(err instanceof Error ? err.message : "Failed to clear nodes");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDeleteNode = async (index: number) => {
+    setBusy(true);
+    setLastError(null);
+    try {
+      const result = await api.deleteManeuverNode(index);
+      setNodes(result.nodes);
+      setTuneNodeIndex((prev) => {
+        if (result.nodes.length === 0) return 0;
+        if (prev > index) return prev - 1;
+        if (prev >= result.nodes.length) return result.nodes.length - 1;
+        return prev;
+      });
+      setManeuver(await api.maneuverStatus());
+    } catch (err) {
+      setLastError(err instanceof Error ? err.message : "Failed to delete node");
     } finally {
       setBusy(false);
     }
@@ -403,7 +442,9 @@ export function ManeuverPanel() {
           {selectedSpec.needs_target && !target?.mechjeb_locked
             ? " · Lock a target first."
             : ""}
-          {selectedSpec.timed && timeReference === "x_from_now"
+          {selectedSpec.timed && timeReference === "computed"
+            ? " · Node scheduled at MechJeb's optimum time."
+            : selectedSpec.timed && timeReference === "x_from_now"
             ? ` · Node scheduled ${leadTimeS}s from now.`
             : selectedSpec.timed && timeReference === "closest_approach"
               ? " · Node scheduled at closest approach to target."
@@ -411,9 +452,9 @@ export function ManeuverPanel() {
         </p>
       )}
 
-      {selectedSpec && selectedSpec.params.length > 0 && (
+      {selectedSpec && visibleParams.length > 0 && (
         <div className="row" style={{ marginBottom: "0.75rem" }}>
-          {selectedSpec.params.map((field) => (
+          {visibleParams.map((field) => (
             <ParamField
               key={field.name}
               spec={field}
@@ -503,6 +544,15 @@ export function ManeuverPanel() {
                   disabled={formDisabled}
                 />
               </label>
+              <button
+                type="button"
+                className="secondary maneuver-node-delete"
+                onClick={() => handleDeleteNode(index)}
+                disabled={formDisabled}
+                aria-label={`Delete node ${index + 1}`}
+              >
+                Delete
+              </button>
             </div>
           ))
         )}

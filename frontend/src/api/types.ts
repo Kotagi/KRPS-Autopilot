@@ -30,7 +30,20 @@ export interface VesselControlsState {
   lights: boolean;
   throttle: number;
   current_stage: number;
+  sas_mode: VesselPointMode | null;
 }
+
+export type VesselPointMode =
+  | "prograde"
+  | "retrograde"
+  | "normal"
+  | "anti_normal"
+  | "radial"
+  | "anti_radial"
+  | "maneuver"
+  | "target"
+  | "anti_target"
+  | "stability_assist";
 
 export interface VesselTelemetry {
   vessel_name: string;
@@ -77,6 +90,7 @@ export interface VesselDeltaV {
 }
 
 export interface StageFuel {
+  group_id: string;
   stage_number: number;
   label: string;
   percent: number;
@@ -222,6 +236,7 @@ export interface ManeuverParamSpec {
   default?: number | boolean | null;
   min?: number | null;
   max?: number | null;
+  for_target_type?: "body" | "vessel" | null;
 }
 
 export interface ManeuverOperationSpec {
@@ -262,6 +277,17 @@ export interface ManeuverExecuteRequest {
   tolerance?: number | null;
   autowarp: boolean;
   lead_time_s: number;
+}
+
+export interface ManeuverWarpRequest {
+  lead_time_s?: number;
+}
+
+export interface ManeuverWarpResult {
+  node_ut: number;
+  warp_ut: number;
+  time_to_node_s: number;
+  delta_v_ms: number;
 }
 
 export interface ManeuverNodeToleranceRequest {
@@ -402,4 +428,17 @@ export interface CameraListResponse {
   source: string;
   cameras: CameraSummary[];
   error: string | null;
+}
+
+export interface CameraStreamDebugEntry {
+  stream_id: string;
+  camera_id: number;
+  age_s: number;
+}
+
+export interface CameraDebugResponse {
+  active_proxy_streams: number;
+  proxy_streams: CameraStreamDebugEntry[];
+  jrti_total_viewers: number;
+  cameras: CameraSummary[];
 }

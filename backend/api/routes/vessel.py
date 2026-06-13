@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from backend.api.deps import require_flight
 from backend.core.exceptions import VesselControlError
-from backend.models.vessel import ToggleRequest, VesselControlsState
+from backend.models.vessel import ToggleRequest, VesselControlsState, VesselPointRequest
 from backend.services.telemetry_service import telemetry_service
 from backend.services.vessel_service import VesselService
 
@@ -57,3 +57,16 @@ async def set_lights(
     controls = vessel_service.set_lights(body.enabled)
     await telemetry_service.broadcast("vessel_controls", controls.model_dump())
     return controls
+
+
+@router.post("/point", response_model=VesselControlsState)
+async def point_to(
+    body: VesselPointRequest,
+    _: None = Depends(require_flight),
+) -> VesselControlsState:
+    try:
+        controls = vessel_service.point_to(body.mode)
+        await telemetry_service.broadcast("vessel_controls", controls.model_dump())
+        return controls
+    except VesselControlError as exc:
+        raise _handle_vessel_error(exc) from exc

@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 class StageFuel(BaseModel):
     """Fuel remaining for one propulsion stack."""
 
+    group_id: str
     stage_number: int
     label: str
     percent: float = Field(ge=0.0, le=100.0)

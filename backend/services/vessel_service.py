@@ -2,9 +2,22 @@ from typing import Any
 
 from backend.core.connection import GameConnection, game_connection
 from backend.core.exceptions import VesselControlError
-from backend.models.vessel import VesselControlsState
+from backend.models.vessel import VesselControlsState, VesselPointMode
 
 STAGE_ALLOWED_SITUATIONS = {"pre_launch", "flying", "orbiting"}
+
+_POINT_MODE_ATTR: dict[VesselPointMode, str] = {
+    VesselPointMode.prograde: "prograde",
+    VesselPointMode.retrograde: "retrograde",
+    VesselPointMode.normal: "normal",
+    VesselPointMode.anti_normal: "anti_normal",
+    VesselPointMode.radial: "radial",
+    VesselPointMode.anti_radial: "anti_radial",
+    VesselPointMode.maneuver: "maneuver",
+    VesselPointMode.target: "target",
+    VesselPointMode.anti_target: "anti_target",
+    VesselPointMode.stability_assist: "stability_assist",
+}
 
 
 def _situation_name(vessel: Any) -> str:
@@ -32,7 +45,42 @@ class VesselService:
             lights=bool(control.lights),
             throttle=float(control.throttle),
             current_stage=int(control.current_stage),
+            sas_mode=self._read_sas_mode(control),
         )
+
+    @staticmethod
+    def _read_sas_mode(control: Any) -> VesselPointMode | None:
+        if not bool(control.sas):
+            return None
+        try:
+            raw_mode = control.sas_mode
+            mode_name = str(getattr(raw_mode, "name", raw_mode))
+            if "." in mode_name:
+                mode_name = mode_name.split(".")[-1]
+            return VesselPointMode(mode_name)
+        except Exception:
+            return None
+
+    def _resolve_sas_mode(self, mode: VesselPointMode) -> Any:
+        sas_modes = self._game.space_center.SASMode
+        attr = _POINT_MODE_ATTR[mode]
+        try:
+            return getattr(sas_modes, attr)
+        except AttributeError as exc:
+            raise VesselControlError(f"Unsupported SAS mode '{mode.value}'.") from exc
+
+    def point_to(self, mode: VesselPointMode) -> VesselControlsState:
+        self._game.require_flight()
+        vessel = self._game.active_vessel()
+        control = vessel.control
+        try:
+            control.sas_mode = self._resolve_sas_mode(mode)
+            control.sas = True
+        except VesselControlError:
+            raise
+        except Exception as exc:
+            raise VesselControlError(f"Cannot point {mode.value}: {exc}") from exc
+        return self.get_controls()
 
     def stage(self) -> VesselControlsState:
         self._game.require_flight()

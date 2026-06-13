@@ -214,6 +214,10 @@ select {
   max-width: 1200px;
 }
 
+.screen-frame-body--cockpit {
+  max-width: none;
+}
+
 .coming-soon-panel {
   max-width: 640px;
 }
@@ -411,6 +415,744 @@ select {
   max-height: 70vh;
   object-fit: contain;
   background: #05080f;
+}
+
+.optics-viewer-feed-img--pending {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.optics-viewer-feed-img--ready {
+  position: relative;
+}
+
+.optics-viewer-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sx-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8ea8d8;
+  text-align: center;
+  padding: 1rem;
+}
+
+.optics-viewer-loading--warn {
+  color: #e8b060;
+}
+
+.optics-viewer-feed {
+  position: relative;
+}
+
+.optics-stream-debug {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-family: var(--sx-mono);
+  font-size: 0.68rem;
+  color: #6f86ad;
+  letter-spacing: 0.04em;
+}
+
+.optics-stream-debug--warn {
+  color: #e8b060;
+}
+
+.cockpit-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cockpit-status-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) auto;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0;
+  padding: 0.65rem 1rem;
+  background: linear-gradient(180deg, rgba(14, 22, 38, 0.95) 0%, rgba(8, 12, 22, 0.98) 100%);
+  border-color: rgba(80, 120, 180, 0.35);
+}
+
+.cockpit-status-primary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  min-width: 0;
+  font-family: var(--sx-mono);
+}
+
+.cockpit-status-callsign {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e8f0ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cockpit-status-situation {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8ea8d8;
+  white-space: nowrap;
+}
+
+.cockpit-status-divider {
+  color: #4a6088;
+}
+
+.cockpit-status-instruments {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem 1rem;
+  font-family: var(--sx-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6f86ad;
+}
+
+.cockpit-status-instruments strong {
+  color: #7dffb2;
+  font-weight: 600;
+}
+
+.cockpit-status-link {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--sx-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8ea8d8;
+  white-space: nowrap;
+}
+
+.cockpit-link-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #5a3040;
+  box-shadow: 0 0 6px rgba(200, 80, 80, 0.35);
+}
+
+.cockpit-link-indicator--on {
+  background: #4fd08a;
+  box-shadow: 0 0 8px rgba(79, 208, 138, 0.65);
+}
+
+.cockpit-main-deck {
+  display: grid;
+  grid-template-columns: minmax(168px, 196px) minmax(0, 1fr) minmax(220px, 280px);
+  gap: 0.75rem;
+  align-items: stretch;
+  min-height: 280px;
+}
+
+.cockpit-module--controls {
+  justify-content: flex-start;
+}
+
+.cockpit-controls-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.cockpit-control-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-height: 3.25rem;
+  padding: 0.45rem 0.5rem;
+  border: 2px solid #2a3348;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #121a2a 0%, #080c14 100%);
+  color: #5a6f8f;
+  font-family: var(--sx-mono);
+  cursor: pointer;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.55),
+    0 1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.cockpit-control-btn:hover:not(:disabled) {
+  border-color: #3d4f70;
+  color: #8ea8d8;
+  background: linear-gradient(180deg, #182238 0%, #0c1220 100%);
+}
+
+.cockpit-control-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.cockpit-control-btn-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.cockpit-control-btn-state {
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.cockpit-control-btn--on {
+  border-color: rgba(125, 255, 178, 0.75);
+  background: linear-gradient(180deg, #1a4034 0%, #0d221c 100%);
+  color: #7dffb2;
+  box-shadow:
+    inset 0 0 12px rgba(125, 255, 178, 0.22),
+    0 0 14px rgba(125, 255, 178, 0.28);
+}
+
+.cockpit-control-btn--on .cockpit-control-btn-state {
+  color: #a8ffd0;
+  opacity: 1;
+}
+
+.cockpit-control-btn--on:hover:not(:disabled) {
+  border-color: rgba(125, 255, 178, 0.9);
+  background: linear-gradient(180deg, #225040 0%, #122a22 100%);
+  color: #9dffc8;
+}
+
+.cockpit-control-btn--stage {
+  border-color: #4a3820;
+  color: #a88850;
+  background: linear-gradient(180deg, #221a10 0%, #100c08 100%);
+}
+
+.cockpit-control-btn--stage:hover:not(:disabled) {
+  border-color: #c9a050;
+  color: #ffd98a;
+  background: linear-gradient(180deg, #3a2c14 0%, #1a1408 100%);
+  box-shadow:
+    inset 0 0 10px rgba(255, 196, 96, 0.12),
+    0 0 10px rgba(255, 196, 96, 0.18);
+}
+
+.cockpit-autopilot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(48, 64, 96, 0.45);
+}
+
+.cockpit-autopilot-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-family: var(--sx-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6f86ad;
+}
+
+.cockpit-autopilot-meta strong {
+  color: #c7dcff;
+  font-weight: 600;
+}
+
+.cockpit-autopilot-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.cockpit-control-btn--autopilot {
+  border-color: #2a4060;
+  color: #6fa8ff;
+  background: linear-gradient(180deg, #142038 0%, #081018 100%);
+}
+
+.cockpit-control-btn--autopilot:hover:not(:disabled) {
+  border-color: #4a7ec8;
+  color: #9ec8ff;
+  background: linear-gradient(180deg, #1a3050 0%, #0c1828 100%);
+}
+
+.cockpit-control-btn--execute {
+  border-color: rgba(0, 210, 184, 0.45);
+  color: var(--sx-accent);
+  background: linear-gradient(180deg, #123830 0%, #081814 100%);
+}
+
+.cockpit-control-btn--execute:hover:not(:disabled) {
+  border-color: rgba(0, 210, 184, 0.75);
+  color: #6dffea;
+  background: linear-gradient(180deg, #184840 0%, #0c2018 100%);
+  box-shadow:
+    inset 0 0 10px rgba(0, 210, 184, 0.12),
+    0 0 10px rgba(0, 210, 184, 0.18);
+}
+
+.cockpit-autopilot-hint {
+  margin: 0;
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.cockpit-controls-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: auto;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(48, 64, 96, 0.45);
+  font-family: var(--sx-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6f86ad;
+}
+
+.cockpit-controls-readout strong {
+  color: #c7dcff;
+  font-weight: 600;
+}
+
+.cockpit-controls-hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.cockpit-controls-section-label {
+  font-family: var(--sx-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6f86ad;
+  margin-bottom: 0.25rem;
+}
+
+.cockpit-point-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 0.15rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(48, 64, 96, 0.45);
+}
+
+.cockpit-point-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+}
+
+.cockpit-control-btn--point {
+  min-height: 2.5rem;
+  padding: 0.3rem 0.25rem;
+}
+
+.cockpit-control-btn--point .cockpit-control-btn-label {
+  font-size: 0.58rem;
+}
+
+.cockpit-control-btn--point .cockpit-control-btn-state {
+  font-size: 0.5rem;
+}
+
+.vessel-point-heading {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: #8ea8d8;
+}
+
+.vessel-point-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.vessel-point-group-label {
+  font-family: var(--sx-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6f86ad;
+  margin-bottom: 0.35rem;
+}
+
+.vessel-point-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.point-btn {
+  min-width: 0;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.72rem;
+}
+
+.point-btn--active {
+  border-color: rgba(125, 255, 178, 0.75);
+  color: #7dffb2;
+  box-shadow: inset 0 0 8px rgba(125, 255, 178, 0.15);
+}
+
+.cockpit-instruments-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.cockpit-attitude-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin-bottom: 0;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.75rem 0.85rem;
+}
+
+.cockpit-attitude-block .navball-source-selector {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.cockpit-attitude-block .navball-wrap {
+  align-items: flex-start;
+}
+
+.cockpit-attitude-block .navball-wrap--ksp {
+  width: auto;
+}
+
+.cockpit-attitude-block .navball-bezel {
+  margin: 0;
+}
+
+.cockpit-attitude-block .navball-readout {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.cockpit-attitude-block .krps-debug-panel,
+.cockpit-attitude-block .telemetry-debug-panel {
+  width: 100%;
+  max-width: 15.5rem;
+}
+
+.cockpit-module {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0;
+  min-height: 0;
+}
+
+.cockpit-module-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cockpit-module-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.cockpit-module-label {
+  font-family: var(--sx-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8ea8d8;
+}
+
+.cockpit-module-sub {
+  font-family: var(--sx-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  color: #6f86ad;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cockpit-live-badge {
+  flex-shrink: 0;
+  font-family: var(--sx-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: #ff8f8f;
+  border: 1px solid rgba(255, 120, 120, 0.45);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  background: rgba(80, 24, 24, 0.35);
+  animation: cockpit-live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes cockpit-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.cockpit-module--viewport {
+  flex: 1;
+}
+
+.cockpit-viewport-bezel {
+  position: relative;
+  flex: 1;
+  min-height: 240px;
+  border: 2px solid #2a3548;
+  border-radius: 4px;
+  background:
+    radial-gradient(ellipse at center, rgba(20, 32, 52, 0.4) 0%, rgba(4, 6, 12, 1) 70%),
+    #04060c;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 32px rgba(0, 0, 0, 0.75),
+    inset 0 0 0 1px rgba(120, 160, 220, 0.08);
+}
+
+.cockpit-viewport-bezel .optics-viewer-feed {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  min-height: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.cockpit-viewport-bezel .optics-viewer-feed img {
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  max-height: none;
+  object-fit: cover;
+}
+
+.cockpit-viewport-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 240px;
+  height: 100%;
+  padding: 1.25rem;
+  text-align: center;
+  font-family: var(--sx-mono);
+}
+
+.cockpit-viewport-placeholder-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6f86ad;
+}
+
+.cockpit-viewport-vessel {
+  margin-top: 0.25rem;
+}
+
+.cockpit-camera-channels {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.15rem;
+  scrollbar-width: thin;
+}
+
+.cockpit-camera-channels-empty {
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.cockpit-camera-channel {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid rgba(100, 140, 200, 0.28);
+  border-radius: 6px;
+  background: rgba(12, 20, 36, 0.92);
+  color: #9eb6dc;
+  font-family: var(--sx-mono);
+  font-size: 0.64rem;
+  padding: 0.32rem 0.55rem;
+  cursor: pointer;
+  max-width: 160px;
+}
+
+.cockpit-camera-channel:hover {
+  border-color: rgba(140, 190, 255, 0.45);
+  background: rgba(20, 34, 58, 0.95);
+}
+
+.cockpit-camera-channel--active {
+  border-color: rgba(125, 255, 178, 0.55);
+  color: #7dffb2;
+  background: rgba(24, 52, 42, 0.85);
+}
+
+.cockpit-camera-channel-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cockpit-camera-channel-id {
+  color: #6f86ad;
+  font-size: 0.58rem;
+}
+
+.cockpit-camera-channel-live {
+  color: #ff8f8f;
+  font-size: 0.5rem;
+}
+
+.cockpit-module--guidance {
+  overflow: auto;
+}
+
+.flight-deck-orbit-readout--compact .telemetry-grid {
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+}
+
+.flight-deck-orbit-readout--compact .telemetry-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid rgba(48, 64, 96, 0.35);
+}
+
+.flight-deck-orbit-readout--compact .telemetry-item span {
+  font-size: 0.64rem;
+}
+
+.flight-deck-orbit-readout--compact .telemetry-item strong {
+  font-size: 0.72rem;
+  text-align: right;
+}
+
+.cockpit-module--fuel {
+  gap: 0.5rem;
+}
+
+.cockpit-fuel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
+
+.cockpit-fuel-metrics {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.cockpit-fuel-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 0 0 auto;
+  font-family: var(--sx-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6f86ad;
+}
+
+.cockpit-fuel-metric strong {
+  font-size: 0.78rem;
+  color: #7dffb2;
+  font-weight: 600;
+}
+
+.cockpit-fuel-metric--stage strong {
+  color: #c7dcff;
+}
+
+.cockpit-fuel-gauges {
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+  scrollbar-width: thin;
+}
+
+.cockpit-fuel-gauges .fuel-gauge-row {
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  min-width: min-content;
+}
+
+.cockpit-fuel-gauges .fuel-gauge {
+  flex: 0 0 auto;
+  min-width: 52px;
+}
+
+.cockpit-fuel-gauges .fuel-gauge-face {
+  width: 40px;
+  height: 118px;
+}
+
+.cockpit-fuel-gauges .fuel-gauge-label {
+  font-size: 0.62rem;
+}
+
+.cockpit-fuel-gauges .fuel-gauge-percent {
+  font-size: 0.58rem;
 }
 
 .flight-deck-grid {
@@ -780,7 +1522,7 @@ select {
 }
 
 .flight-deck-module--attitude .navball-bezel {
-  margin-top: 0.5rem;
+  margin: 0 auto;
 }
 
 .navball-source-selector {
@@ -936,10 +1678,6 @@ select {
   font-size: 0.75rem;
 }
 
-.flight-deck-module--attitude .navball-bezel {
-  margin: 0 auto;
-}
-
 .flight-deck-controls {
   display: flex;
   flex-wrap: wrap;
@@ -989,6 +1727,28 @@ select {
 
   .flight-deck-module--attitude {
     grid-row: auto;
+  }
+
+  .cockpit-status-bar {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .cockpit-status-instruments {
+    justify-content: flex-start;
+  }
+
+  .cockpit-main-deck {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .cockpit-instruments-row {
+    grid-template-columns: 1fr;
+  }
+
+  .cockpit-viewport-bezel {
+    min-height: 200px;
   }
 }
 
@@ -1511,17 +2271,19 @@ button.target-lock {
 .fuel-gauge-scale {
   position: absolute;
   inset: 22px 4px 8px 4px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   z-index: 1;
 }
 
-.fuel-gauge-tick-row {
+.fuel-gauge-tick {
+  position: absolute;
+  left: 0;
+  right: 0;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 3px;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .fuel-gauge-tick-line {
@@ -1540,14 +2302,15 @@ button.target-lock {
 
 .fuel-gauge-indicator {
   position: absolute;
-  left: 6px;
-  right: 18px;
+  left: 0;
+  right: 1.35rem;
   height: 2px;
   background: #d62828;
   box-shadow: 0 0 4px rgba(214, 40, 40, 0.8);
   transform: translateY(-50%);
   transition: top 0.35s linear;
-  z-index: 3;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .fuel-gauge-label {
@@ -1635,6 +2398,12 @@ button.target-lock {
 
 .maneuver-node-tolerance input {
   width: 100%;
+}
+
+.maneuver-node-delete {
+  align-self: end;
+  justify-self: end;
+  min-width: 5rem;
 }
 
 .checkbox-field {

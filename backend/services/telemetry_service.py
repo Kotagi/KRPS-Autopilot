@@ -192,7 +192,7 @@ class TelemetryService:
             payload=sanitize_json_floats(payload),
         ).model_dump()
         dead: list[WebSocket] = []
-        for client in self._clients:
+        for client in list(self._clients):
             try:
                 await client.send_json(message)
             except Exception:
@@ -503,7 +503,7 @@ class TelemetryService:
 
     def _read_delta_v(self) -> VesselDeltaV:
         vessel = self._game.active_vessel()
-        return VesselDeltaV(**read_vessel_delta_v(vessel))
+        return VesselDeltaV(**read_vessel_delta_v(vessel, self._game))
 
     def _read_slow_telemetry(self) -> VesselTelemetry:
         """Orbit and environment fields polled at low rate (not streamed)."""

@@ -1,6 +1,7 @@
 import type {
   AscentConfig,
   AscentStatus,
+  CameraDebugResponse,
   CameraListResponse,
   ConnectionStatus,
   ManeuverExecuteRequest,
@@ -12,11 +13,14 @@ import type {
   ManeuverPlanRequest,
   ManeuverPlanResult,
   ManeuverStatus,
+  ManeuverWarpRequest,
+  ManeuverWarpResult,
   NavballSource,
   NavballSourceStatus,
   TargetStatus,
   TargetTree,
   VesselControlsState,
+  VesselPointMode,
 } from "./types";
 
 async function request<T>(
@@ -73,6 +77,11 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ enabled }),
     }),
+  pointVessel: (mode: VesselPointMode) =>
+    request<VesselControlsState>("/api/vessel/point", {
+      method: "POST",
+      body: JSON.stringify({ mode }),
+    }),
   configureAscent: (config: AscentConfig) =>
     request<AscentStatus>("/api/ascent/configure", {
       method: "POST",
@@ -128,8 +137,18 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  deleteManeuverNode: (nodeIndex: number) =>
+    request<{ nodes: ManeuverNodeSummary[] }>(
+      `/api/maneuver/nodes/${nodeIndex}`,
+      { method: "DELETE" }
+    ),
   clearManeuverNodes: () =>
     request<{ removed: number }>("/api/maneuver/nodes", { method: "DELETE" }),
+  warpToManeuverNode: (body?: ManeuverWarpRequest) =>
+    request<ManeuverWarpResult>("/api/maneuver/warp", {
+      method: "POST",
+      body: JSON.stringify(body ?? {}),
+    }),
   executeManeuver: (body?: ManeuverExecuteRequest) =>
     request<ManeuverStatus>("/api/maneuver/execute", {
       method: "POST",
@@ -139,4 +158,5 @@ export const api = {
     request<ManeuverStatus>("/api/maneuver/abort", { method: "POST" }),
   maneuverStatus: () => request<ManeuverStatus>("/api/maneuver/status"),
   cameras: () => request<CameraListResponse>("/api/cameras"),
+  camerasDebug: () => request<CameraDebugResponse>("/api/cameras/debug"),
 };

@@ -1,61 +1,45 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { api } from "../api/client";
-import type { CameraListResponse, CameraSummary } from "../api/types";
+import type { CameraDebugResponse } from "../api/types";
+import { CameraStreamViewer } from "../components/optics/CameraStreamViewer";
 import { ScreenFrame } from "../components/layout/ScreenFrame";
+import { useCameraList } from "../hooks/useCameraList";
 import { useAppStore } from "../store/appStore";
 
-const POLL_INTERVAL_MS = 4000;
-
-const EMPTY_CAMERA_LIST: CameraListResponse = {
-  available: false,
-  source: "jrti",
-  cameras: [],
-  error: null,
-};
+const DEBUG_POLL_INTERVAL_MS = 5000;
 
 export function OpticsScreen() {
   const connection = useAppStore((s) => s.connection);
-  const [cameraList, setCameraList] = useState<CameraListResponse>(EMPTY_CAMERA_LIST);
-  const [loading, setLoading] = useState(true);
-  const [selectedCameraId, setSelectedCameraId] = useState<number | null>(null);
-  const [streamKey, setStreamKey] = useState(0);
+  const {
+    cameraList,
+    loading,
+    selectedCameraId,
+    selectedCamera,
+    selectCamera,
+  } = useCameraList();
+  const [streamDebug, setStreamDebug] = useState<CameraDebugResponse | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    const refresh = async () => {
+    const refreshDebug = async () => {
       try {
-        const response = await api.cameras();
+        const debug = await api.camerasDebug();
         if (!cancelled) {
-          setCameraList(response);
-          setSelectedCameraId((current) => {
-            if (current === null) {
-              return current;
-            }
-            const stillPresent = response.cameras.some((camera) => camera.id === current);
-            return stillPresent ? current : null;
-          });
+          setStreamDebug(debug);
         }
       } catch {
         if (!cancelled) {
-          setCameraList({
-            ...EMPTY_CAMERA_LIST,
-            error: "Failed to load cameras from mission control.",
-          });
-          setSelectedCameraId(null);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
+          setStreamDebug(null);
         }
       }
     };
 
-    void refresh();
+    void refreshDebug();
     const timer = window.setInterval(() => {
-      void refresh();
-    }, POLL_INTERVAL_MS);
+      void refreshDebug();
+    }, DEBUG_POLL_INTERVAL_MS);
 
     return () => {
       cancelled = true;
@@ -63,18 +47,15 @@ export function OpticsScreen() {
     };
   }, []);
 
-  const selectedCamera = useMemo(
-    () => cameraList.cameras.find((camera) => camera.id === selectedCameraId) ?? null,
-    [cameraList.cameras, selectedCameraId]
-  );
-
   const vesselLabel =
     connection.vessel_name ?? (connection.connected ? "Active vessel" : null);
 
-  const handleSelectCamera = (camera: CameraSummary) => {
-    setSelectedCameraId(camera.id);
-    setStreamKey((key) => key + 1);
-  };
+  const leakedViewers =
+    streamDebug !== null &&
+    streamDebug.jrti_total_viewers > (selectedCamera ? 1 : 0);
+
+  const leakedProxies =
+    streamDebug !== null && streamDebug.active_proxy_streams > 1;
 
   return (
     <ScreenFrame
@@ -120,7 +101,7 @@ export function OpticsScreen() {
                       className={`optics-camera-item ${
                         isSelected ? "optics-camera-item--selected" : ""
                       }`}
-                      onClick={() => handleSelectCamera(camera)}
+                      onClick={() => selectCamera(camera)}
                       aria-pressed={isSelected}
                     >
                       <div className="optics-camera-item-main">
@@ -161,18 +142,35 @@ export function OpticsScreen() {
           </div>
 
           {selectedCamera?.stream_url ? (
-            <div className="optics-viewer-feed">
-              <img
-                key={`${selectedCamera.id}-${streamKey}`}
-                src={`${selectedCamera.stream_url}?v=${streamKey}`}
-                alt={`${selectedCamera.name} live feed`}
-              />
-            </div>
+            <CameraStreamViewer
+              cameraId={selectedCamera.id}
+              streamUrl={selectedCamera.stream_url}
+              cameraName={selectedCamera.name}
+            />
           ) : (
             <div className="optics-viewer-placeholder">
               <span>Select a camera to view its feed.</span>
               {vesselLabel && (
                 <span className="meta optics-viewer-vessel">{vesselLabel}</span>
+              )}
+            </div>
+          )}
+
+          {streamDebug && (
+            <div
+              className={`optics-stream-debug ${
+                leakedViewers || leakedProxies ? "optics-stream-debug--warn" : ""
+              }`}
+            >
+              <span>
+                Proxy streams: {streamDebug.active_proxy_streams} · JRTI viewers:{" "}
+                {streamDebug.jrti_total_viewers}
+              </span>
+              {(leakedViewers || leakedProxies) && (
+                <span className="meta">
+                  Stale stream connections detected — wait a moment after switching
+                  cameras, or use JRTI&apos;s &quot;Close All&quot; if feeds stay black.
+                </span>
               )}
             </div>
           )}

@@ -10,6 +10,7 @@ from backend.models.maneuver import (
     ManeuverPlanRequest,
     TimeReferenceId,
 )
+from backend.models.target import TargetType
 
 TARGET_OPERATIONS = {
     ManeuverOperationId.plane,
@@ -235,21 +236,26 @@ OPERATION_SPECS: list[ManeuverOperationSpec] = [
     ManeuverOperationSpec(
         id=ManeuverOperationId.course_correction,
         label="Course correction",
-        description="Fine-tune closest approach to the target.",
+        description=(
+            "Fine-tune closest approach to the target. "
+            "Body targets use final Pe/A; vessel targets use closest approach distance."
+        ),
         timed=True,
         needs_target=True,
         params=[
             ManeuverParamSpec(
                 name="intercept_distance_m",
-                label="Intercept distance (m)",
+                label="Closest approach distance (m)",
                 kind="meters",
                 default=50.0,
+                for_target_type="vessel",
             ),
             ManeuverParamSpec(
                 name="course_correct_final_pe_a_km",
                 label="Final Pe/A (km)",
                 kind="altitude_km",
-                default=0.0,
+                default=200.0,
+                for_target_type="body",
             ),
         ],
     ),
@@ -330,6 +336,7 @@ def apply_operation_params(
     operation: Any,
     operation_id: ManeuverOperationId,
     request: ManeuverPlanRequest,
+    target_type: TargetType = "none",
 ) -> None:
     params = request.params
 
@@ -405,16 +412,18 @@ def apply_operation_params(
             float(params.get("intercept_interval_s", 3600.0)),
         )
     elif operation_id == ManeuverOperationId.course_correction:
-        _set_param(
-            operation,
-            "intercept_distance",
-            float(params.get("intercept_distance_m", 50.0)),
-        )
-        _set_param(
-            operation,
-            "course_correct_final_pe_a",
-            altitude_km_to_m(float(params.get("course_correct_final_pe_a_km", 0.0))),
-        )
+        if target_type == "body":
+            _set_param(
+                operation,
+                "course_correct_final_pe_a",
+                altitude_km_to_m(float(params.get("course_correct_final_pe_a_km", 200.0))),
+            )
+        else:
+            _set_param(
+                operation,
+                "intercept_distance",
+                float(params.get("intercept_distance_m", 50.0)),
+            )
     elif operation_id == ManeuverOperationId.moon_return:
         _set_param(
             operation,
@@ -438,9 +447,10 @@ def configure_operation(
     planner: Any,
     mechjeb: Any,
     request: ManeuverPlanRequest,
+    target_type: TargetType = "none",
 ) -> Any:
     operation = get_planner_operation(planner, request.operation)
-    apply_operation_params(operation, request.operation, request)
+    apply_operation_params(operation, request.operation, request, target_type)
     time_selector = getattr(operation, "time_selector", None)
     if time_selector is not None:
         _apply_time_selector(time_selector, mechjeb, request)

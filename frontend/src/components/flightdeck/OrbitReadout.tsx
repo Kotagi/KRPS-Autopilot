@@ -25,9 +25,10 @@ function formatSpeed(ms: number): string {
 interface OrbitReadoutProps {
   telemetry: VesselTelemetry | null;
   connected: boolean;
+  compact?: boolean;
 }
 
-export function OrbitReadout({ telemetry, connected }: OrbitReadoutProps) {
+export function OrbitReadout({ telemetry, connected, compact = false }: OrbitReadoutProps) {
   if (!telemetry) {
     return (
       <div className="flight-deck-placeholder">
@@ -42,23 +43,15 @@ export function OrbitReadout({ telemetry, connected }: OrbitReadoutProps) {
   }
 
   return (
-    <div className="flight-deck-orbit-readout">
+    <div className={`flight-deck-orbit-readout${compact ? " flight-deck-orbit-readout--compact" : ""}`}>
       <div className="telemetry-grid">
         <div className="telemetry-item">
           <span>Body</span>
           <strong>{telemetry.orbit_body ?? "—"}</strong>
         </div>
         <div className="telemetry-item">
-          <span>Situation</span>
-          <strong>{telemetry.situation}</strong>
-        </div>
-        <div className="telemetry-item">
           <span>Altitude (MSL)</span>
           <strong>{formatDistance(telemetry.altitude_m)}</strong>
-        </div>
-        <div className="telemetry-item">
-          <span>Surface alt</span>
-          <strong>{formatDistance(telemetry.surface_altitude_m ?? 0)}</strong>
         </div>
         <div className="telemetry-item">
           <span>Apoapsis</span>
@@ -69,14 +62,6 @@ export function OrbitReadout({ telemetry, connected }: OrbitReadoutProps) {
           <strong>{formatDistance(telemetry.periapsis_m)}</strong>
         </div>
         <div className="telemetry-item">
-          <span>Inclination</span>
-          <strong>{(telemetry.inclination_deg ?? 0).toFixed(2)}°</strong>
-        </div>
-        <div className="telemetry-item">
-          <span>Eccentricity</span>
-          <strong>{(telemetry.eccentricity ?? 0).toFixed(4)}</strong>
-        </div>
-        <div className="telemetry-item">
           <span>Orbital speed</span>
           <strong>{formatSpeed(telemetry.orbital_speed_ms ?? 0)}</strong>
         </div>
@@ -85,37 +70,57 @@ export function OrbitReadout({ telemetry, connected }: OrbitReadoutProps) {
           <strong>{formatSpeed(telemetry.surface_speed_ms ?? 0)}</strong>
         </div>
         <div className="telemetry-item">
-          <span>Vertical speed</span>
-          <strong>{formatSpeed(telemetry.vertical_speed_ms ?? 0)}</strong>
-        </div>
-        <div className="telemetry-item">
-          <span>Dynamic pressure</span>
-          <strong>{Math.round(telemetry.dynamic_pressure_pa ?? 0)} Pa</strong>
-        </div>
-        <div className="telemetry-item">
-          <span>Mach</span>
-          <strong>{(telemetry.mach ?? 0).toFixed(2)}</strong>
-        </div>
-        <div className="telemetry-item">
           <span>G force</span>
           <strong>{(telemetry.g_force ?? 0).toFixed(2)} g</strong>
-        </div>
-        <div className="telemetry-item">
-          <span>T to Ap</span>
-          <strong>{formatDuration(telemetry.time_to_apoapsis_s)}</strong>
-        </div>
-        <div className="telemetry-item">
-          <span>T to Pe</span>
-          <strong>{formatDuration(telemetry.time_to_periapsis_s)}</strong>
-        </div>
-        <div className="telemetry-item">
-          <span>T to SOI</span>
-          <strong>{formatDuration(telemetry.time_to_soi_s)}</strong>
         </div>
         <div className="telemetry-item">
           <span>Next node</span>
           <strong>T− {formatDuration(telemetry.next_node_time_to_s)}</strong>
         </div>
+        {!compact && (
+          <>
+            <div className="telemetry-item">
+              <span>Situation</span>
+              <strong>{telemetry.situation}</strong>
+            </div>
+            <div className="telemetry-item">
+              <span>Surface alt</span>
+              <strong>{formatDistance(telemetry.surface_altitude_m ?? 0)}</strong>
+            </div>
+            <div className="telemetry-item">
+              <span>Inclination</span>
+              <strong>{(telemetry.inclination_deg ?? 0).toFixed(2)}°</strong>
+            </div>
+            <div className="telemetry-item">
+              <span>Eccentricity</span>
+              <strong>{(telemetry.eccentricity ?? 0).toFixed(4)}</strong>
+            </div>
+            <div className="telemetry-item">
+              <span>Vertical speed</span>
+              <strong>{formatSpeed(telemetry.vertical_speed_ms ?? 0)}</strong>
+            </div>
+            <div className="telemetry-item">
+              <span>Dynamic pressure</span>
+              <strong>{Math.round(telemetry.dynamic_pressure_pa ?? 0)} Pa</strong>
+            </div>
+            <div className="telemetry-item">
+              <span>Mach</span>
+              <strong>{(telemetry.mach ?? 0).toFixed(2)}</strong>
+            </div>
+            <div className="telemetry-item">
+              <span>T to Ap</span>
+              <strong>{formatDuration(telemetry.time_to_apoapsis_s)}</strong>
+            </div>
+            <div className="telemetry-item">
+              <span>T to Pe</span>
+              <strong>{formatDuration(telemetry.time_to_periapsis_s)}</strong>
+            </div>
+            <div className="telemetry-item">
+              <span>T to SOI</span>
+              <strong>{formatDuration(telemetry.time_to_soi_s)}</strong>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
