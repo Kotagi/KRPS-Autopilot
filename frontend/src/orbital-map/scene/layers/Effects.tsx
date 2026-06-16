@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
-import { Stars } from "@react-three/drei";
+import { CameraAttachedStars } from "../CameraAttachedStars";
 import { useViewStore } from "../../store/viewStore";
 import { getQualitySettings } from "../../settings/qualityStore";
 
@@ -13,15 +13,7 @@ export function SceneEffects() {
 
   return (
     <>
-      <Stars
-        radius={300}
-        depth={50}
-        count={quality.starCount}
-        factor={4}
-        saturation={0}
-        fade
-        speed={0.5}
-      />
+      <CameraAttachedStars maxCount={quality.starCount} />
       {quality.bloomEnabled && (
         <EffectComposer>
           <Bloom luminanceThreshold={0.6} luminanceSmoothing={0.9} intensity={1.2} />
