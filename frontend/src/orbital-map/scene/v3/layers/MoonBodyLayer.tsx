@@ -3,16 +3,14 @@ import { useMapV3 } from "../../../map-v3/MapV3Context";
 import { planetBodyTextureFields } from "../../../map-v3/elements/planetBody/planetBodyTextureFields";
 import { buildSegments } from "../../../map-v3/planner/buildSegments";
 import { usePlanetsInMeshMode } from "../../../map-v3/PlanetBodyMeshLodContext";
-import { useMoonVisibilityContext } from "../../MoonVisibilityContext";
 import { PlanetBodyMesh } from "./PlanetBodyMesh";
 
 /**
- * Textured moon meshes when the host planet is in mesh LOD and the moon is visible.
+ * Textured moon meshes when the host planet is in mesh LOD.
  * Reuses PlanetBodyMesh (scale, orientation, ScaledSpace texture from telemetry).
  */
 export function MoonBodyLayer() {
   const { mapContext, layers } = useMapV3();
-  const { visibleBodyNames } = useMoonVisibilityContext();
   const planetsInMeshMode = usePlanetsInMeshMode();
 
   const segments = useMemo(() => {
@@ -32,9 +30,6 @@ export function MoonBodyLayer() {
         const name = seg.bodyName;
         const parent = seg.parentBody;
         if (!name || !parent || seg.points.length === 0) {
-          return null;
-        }
-        if (!visibleBodyNames.has(name)) {
           return null;
         }
         if (!planetsInMeshMode.has(parent)) {
