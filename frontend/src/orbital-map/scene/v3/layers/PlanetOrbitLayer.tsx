@@ -1,9 +1,9 @@
-import { useEffect } from "react";
-import { useViewStore } from "../../../store/viewStore";
+import { useEffect, useMemo } from "react";
 import { useMapV3 } from "../../../map-v3/MapV3Context";
 import { PLANET_ORBIT_STYLE } from "../../../map-v3/elements/planetOrbit/planetOrbitStyle";
 import { useV3RootSegments, useV3SceneTrails } from "../../../map-v3/useMapV3Trails";
 import { useMoonVisibilityContext } from "../../MoonVisibilityContext";
+import { useCustomizeMapOrbitPickRegistration } from "../../useCustomizeMapOrbitPickRegistration";
 import { OrbitTrailV3 } from "./OrbitTrailV3";
 
 declare global {
@@ -25,24 +25,31 @@ export function PlanetOrbitLayer() {
     layers.planetOrbit,
   );
 
-  const filteredRoot = rootSegs.filter((seg) => {
-    const name = seg.bodyName;
-    if (!name || !mapContext) {
-      return false;
-    }
-    if (!visibleBodyNames.has(name)) {
-      return false;
-    }
-    if (!mapContext.hierarchy.planetNames.includes(name)) {
-      return false;
-    }
-    return true;
-  });
+  const filteredRoot = useMemo(
+    () =>
+      rootSegs.filter((seg) => {
+        const name = seg.bodyName;
+        if (!name || !mapContext) {
+          return false;
+        }
+        if (!visibleBodyNames.has(name)) {
+          return false;
+        }
+        if (!mapContext.hierarchy.planetNames.includes(name)) {
+          return false;
+        }
+        return true;
+      }),
+    [rootSegs, mapContext, visibleBodyNames],
+  );
 
   const trails = useV3SceneTrails(filteredRoot, sceneFrame);
 
-  const customizeEnabled = useViewStore((s) => s.devCustomizeMapEnabled);
-  const setPickLines = useViewStore((s) => s.setCustomizeMapOrbitPickLines);
+  useCustomizeMapOrbitPickRegistration(
+    "planetOrbit",
+    trails,
+    layers.planetOrbit && !!mapContext?.canDraw,
+  );
 
   useEffect(() => {
     if (!layers.planetOrbit || trails.length === 0) {
@@ -57,21 +64,6 @@ export function PlanetOrbitLayer() {
       targetVertices: PLANET_ORBIT_STYLE.trailVertices,
     };
   }, [layers.planetOrbit, trails]);
-
-  useEffect(() => {
-    if (!customizeEnabled) {
-      setPickLines([]);
-      return;
-    }
-    setPickLines(
-      trails
-        .filter((t) => t.bodyName && t.points.length >= 2)
-        .map((t) => ({
-          bodyName: t.bodyName!,
-          points: t.points,
-        })),
-    );
-  }, [customizeEnabled, trails, setPickLines]);
 
   if (!layers.planetOrbit || !mapContext?.canDraw || trails.length === 0) {
     return null;

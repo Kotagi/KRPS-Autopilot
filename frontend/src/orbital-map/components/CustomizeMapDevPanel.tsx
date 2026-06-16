@@ -4,7 +4,7 @@ import {
   normalizeHexColor,
 } from "../settings/customizeMapDev";
 
-/** Dev HUD: customize heliocentric planet orbit colors (click orbit to select). */
+/** Dev HUD: customize planet/moon orbit colors (click orbit to select). */
 export function CustomizeMapDevPanel() {
   const enabled = useViewStore((s) => s.devCustomizeMapEnabled);
   const selected = useViewStore((s) => s.customizeMapSelectedPlanet);
@@ -50,7 +50,8 @@ export function CustomizeMapDevPanel() {
       {enabled ? (
         <div className="ksp-solar-customize-map-dev-controls">
           <span className="ksp-solar-customize-map-dev-prompt">
-            Click a <strong>planet orbit</strong> ring on the map to edit its color.
+            Click a <strong>planet or moon orbit</strong> ring on the map to edit its color.
+            Moon rings appear when the host planet is in mesh LOD (zoomed in).
           </span>
           {selected ? (
             <>
@@ -68,12 +69,12 @@ export function CustomizeMapDevPanel() {
               <button
                 type="button"
                 onClick={() => setStockDefault(selected)}
-                title="Save this color as the planet default (persists in browser)"
+                title="Save this color as the body default (persists in browser)"
               >
                 Set color
               </button>
               <button type="button" onClick={() => resetPlanet(selected)}>
-                Revert planet
+                Revert body
               </button>
               <button type="button" onClick={() => copyHex()}>
                 Copy hex
@@ -86,11 +87,11 @@ export function CustomizeMapDevPanel() {
             </>
           ) : (
             <span className="ksp-solar-customize-map-dev-hint">
-              No planet selected — click an orbit trail.
+              No body selected — click a planet or moon orbit trail.
             </span>
           )}
           <button type="button" onClick={() => resetAll()}>
-            Revert all planets
+            Revert all bodies
           </button>
           {overrideCount > 0 || Object.keys(stockDefaults).length > 0 ? (
             <span className="ksp-solar-customize-map-dev-hint">

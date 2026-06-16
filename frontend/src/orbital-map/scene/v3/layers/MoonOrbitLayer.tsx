@@ -10,6 +10,7 @@ import {
   useV3RootSegments,
   type SceneTrail,
 } from "../../../map-v3/useMapV3Trails";
+import { useCustomizeMapOrbitPickRegistration } from "../../useCustomizeMapOrbitPickRegistration";
 import { OrbitTrailV3 } from "./OrbitTrailV3";
 
 declare global {
@@ -89,6 +90,12 @@ export function MoonOrbitLayer() {
       };
     });
   }, [filteredRoot, mapContext, frameKey, sceneFrame]);
+
+  useCustomizeMapOrbitPickRegistration(
+    "moonOrbit",
+    trails,
+    layers.moonOrbit && !!mapContext?.canDraw,
+  );
 
   useEffect(() => {
     if (!layers.moonOrbit || trails.length === 0) {

@@ -10,7 +10,8 @@ import {
 } from "../selection/buildSelectionTargets";
 import { useMoonVisibilityContext } from "./MoonVisibilityContext";
 import { bodyPickRadius } from "./bodyVisualScale";
-import { pickPlanetOrbitTrail } from "../selection/pickPlanetOrbitTrail";
+import { pickOrbitTrail } from "../selection/pickOrbitTrail";
+import { getCustomizeMapOrbitPickLines } from "../selection/customizeMapOrbitPickRegistry";
 
 export function SelectionController() {
   const model = useViewStore((s) => s.model);
@@ -19,7 +20,6 @@ export function SelectionController() {
   const setHoverObjectId = useViewStore((s) => s.setHoverObjectId);
   const focusOnBody = useViewStore((s) => s.focusOnBody);
   const customizeEnabled = useViewStore((s) => s.devCustomizeMapEnabled);
-  const orbitPickLines = useViewStore((s) => s.customizeMapOrbitPickLines);
   const setCustomizeSelected = useViewStore(
     (s) => s.setCustomizeMapSelectedPlanet,
   );
@@ -97,19 +97,22 @@ export function SelectionController() {
       if (!model?.canDraw) {
         return;
       }
-      if (customizeEnabled && orbitPickLines.length > 0) {
-        const rect = dom.getBoundingClientRect();
-        pointer.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        pointer.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        raycaster.current.setFromCamera(pointer.current, camera);
-        const orbitBody = pickPlanetOrbitTrail(
-          raycaster.current.ray,
-          orbitPickLines,
-          3,
-        );
-        if (orbitBody) {
-          setCustomizeSelected(orbitBody);
-          return;
+      if (customizeEnabled) {
+        const orbitPickLines = getCustomizeMapOrbitPickLines();
+        if (orbitPickLines.length > 0) {
+          const rect = dom.getBoundingClientRect();
+          pointer.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+          pointer.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+          raycaster.current.setFromCamera(pointer.current, camera);
+          const orbitBody = pickOrbitTrail(
+            raycaster.current.ray,
+            orbitPickLines,
+            3,
+          );
+          if (orbitBody) {
+            setCustomizeSelected(orbitBody);
+            return;
+          }
         }
       }
       const id = pick(event.clientX, event.clientY);
@@ -125,18 +128,21 @@ export function SelectionController() {
     }
 
     function onMove(event: MouseEvent) {
-      if (customizeEnabled && orbitPickLines.length > 0) {
-        const rect = dom.getBoundingClientRect();
-        pointer.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        pointer.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        raycaster.current.setFromCamera(pointer.current, camera);
-        const orbitBody = pickPlanetOrbitTrail(
-          raycaster.current.ray,
-          orbitPickLines,
-          3,
-        );
-        dom.style.cursor = orbitBody ? "pointer" : "";
-        return;
+      if (customizeEnabled) {
+        const orbitPickLines = getCustomizeMapOrbitPickLines();
+        if (orbitPickLines.length > 0) {
+          const rect = dom.getBoundingClientRect();
+          pointer.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+          pointer.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+          raycaster.current.setFromCamera(pointer.current, camera);
+          const orbitBody = pickOrbitTrail(
+            raycaster.current.ray,
+            orbitPickLines,
+            3,
+          );
+          dom.style.cursor = orbitBody ? "pointer" : "";
+          return;
+        }
       }
       const id = pick(event.clientX, event.clientY);
       setHoverObjectId(id);
@@ -159,7 +165,6 @@ export function SelectionController() {
     setHoverObjectId,
     focusOnBody,
     customizeEnabled,
-    orbitPickLines,
     setCustomizeSelected,
   ]);
 

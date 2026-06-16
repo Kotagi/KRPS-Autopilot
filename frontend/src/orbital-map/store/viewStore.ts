@@ -13,7 +13,7 @@ import {
   normalizeHexColor,
   persistCustomizeMapDev,
 } from "../settings/customizeMapDev";
-import type { PlanetOrbitPickLine } from "../selection/pickPlanetOrbitTrail";
+import { clearCustomizeMapOrbitPickRegistry } from "../selection/customizeMapOrbitPickRegistry";
 import type { PlanetBodyLodDevOverride } from "../map-v3/elements/planetBody/planetBodyLod";
 
 const customizeMapInitial = loadCustomizeMapDev();
@@ -70,13 +70,12 @@ interface ViewState {
   vesselDisplayPosition: Vector3 | null;
   vesselTargetPosition: Vector3 | null;
   moonLodDebug: MoonLodDebugState | null;
-  /** Dev HUD: customize planet orbit colors (click orbit to select). */
+  /** Dev HUD: customize planet/moon orbit colors (click orbit to select). */
   devCustomizeMapEnabled: boolean;
   customizeMapSelectedPlanet: string | null;
   planetOrbitColorOverrides: Record<string, string>;
   /** Dev “Set color” defaults (persisted; used even when Customize Map is off). */
   planetOrbitStockDefaults: Record<string, string>;
-  customizeMapOrbitPickLines: PlanetOrbitPickLine[];
   /** Dev HUD: force Map V3 planet bodies icon vs mesh LOD (auto = zoom-based). */
   devPlanetBodyLodOverride: PlanetBodyLodDevOverride;
   devPlanetBodySpinAxisVisible: boolean;
@@ -96,7 +95,6 @@ interface ViewState {
   setPlanetOrbitStockDefault: (planet: string) => void;
   resetPlanetOrbitColorToStock: (planet: string) => void;
   resetAllPlanetOrbitColorsToStock: () => void;
-  setCustomizeMapOrbitPickLines: (lines: PlanetOrbitPickLine[]) => void;
   setMoonLodDebug: (debug: MoonLodDebugState | null) => void;
   setTelemetry: (telemetry: TelemetrySnapshot | null) => void;
   setCameraMode: (mode: CameraMode) => void;
@@ -186,7 +184,6 @@ export const useViewStore = create<ViewState>((set, get) => ({
   customizeMapSelectedPlanet: customizeMapInitial.selectedPlanet,
   planetOrbitColorOverrides: customizeMapInitial.overrides,
   planetOrbitStockDefaults: customizeMapInitial.stockDefaults,
-  customizeMapOrbitPickLines: [],
   devPlanetBodyLodOverride: "auto",
   setDevPlanetBodyLodOverride: (devPlanetBodyLodOverride) =>
     set({ devPlanetBodyLodOverride }),
@@ -203,6 +200,9 @@ export const useViewStore = create<ViewState>((set, get) => ({
   setDevPlanetBodySpinChiralityCollect: (devPlanetBodySpinChiralityCollect) =>
     set({ devPlanetBodySpinChiralityCollect }),
   setDevCustomizeMapEnabled: (enabled) => {
+    if (!enabled) {
+      clearCustomizeMapOrbitPickRegistry();
+    }
     const next = {
       devCustomizeMapEnabled: enabled,
       customizeMapSelectedPlanet: get().customizeMapSelectedPlanet,
@@ -292,8 +292,6 @@ export const useViewStore = create<ViewState>((set, get) => ({
     persistCustomizeFromState(next);
     set({ planetOrbitColorOverrides: {}, planetOrbitStockDefaults: {} });
   },
-  setCustomizeMapOrbitPickLines: (lines) =>
-    set({ customizeMapOrbitPickLines: lines }),
   setMoonLodDebug: (moonLodDebug) => set({ moonLodDebug }),
   setTelemetry: (telemetry) => {
     const { scrubEnabled, scrubUniversalTime, vesselDisplayPosition } = get();
