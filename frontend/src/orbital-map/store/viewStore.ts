@@ -80,10 +80,13 @@ interface ViewState {
   /** Dev HUD: force Map V3 planet bodies icon vs mesh LOD (auto = zoom-based). */
   devPlanetBodyLodOverride: PlanetBodyLodDevOverride;
   devPlanetBodySpinAxisVisible: boolean;
+  /** Prime meridian tick + prograde arrow on mesh geometry (compare vs texture). */
+  devPlanetBodySpinDirectionVisible: boolean;
   devPlanetBodySpinDiagnostics: boolean;
   /** Buffer Kerbin orientation samples for spin chirality diagnostic. */
   devPlanetBodySpinChiralityCollect: boolean;
   setDevPlanetBodySpinAxisVisible: (visible: boolean) => void;
+  setDevPlanetBodySpinDirectionVisible: (visible: boolean) => void;
   setDevPlanetBodySpinDiagnostics: (enabled: boolean) => void;
   setDevPlanetBodySpinChiralityCollect: (enabled: boolean) => void;
   setDevPlanetBodyLodOverride: (override: PlanetBodyLodDevOverride) => void;
@@ -188,10 +191,13 @@ export const useViewStore = create<ViewState>((set, get) => ({
   setDevPlanetBodyLodOverride: (devPlanetBodyLodOverride) =>
     set({ devPlanetBodyLodOverride }),
   devPlanetBodySpinAxisVisible: false,
+  devPlanetBodySpinDirectionVisible: false,
   devPlanetBodySpinDiagnostics: false,
   devPlanetBodySpinChiralityCollect: false,
   setDevPlanetBodySpinAxisVisible: (devPlanetBodySpinAxisVisible) =>
     set({ devPlanetBodySpinAxisVisible }),
+  setDevPlanetBodySpinDirectionVisible: (devPlanetBodySpinDirectionVisible) =>
+    set({ devPlanetBodySpinDirectionVisible }),
   setDevPlanetBodySpinDiagnostics: (devPlanetBodySpinDiagnostics) =>
     set({ devPlanetBodySpinDiagnostics }),
   setDevPlanetBodySpinChiralityCollect: (devPlanetBodySpinChiralityCollect) =>

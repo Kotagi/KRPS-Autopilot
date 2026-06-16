@@ -16,6 +16,7 @@ import { PlanetBodyDot } from "./PlanetBodyDot";
 import { PlanetBodyOrientedGroup } from "./PlanetBodyOrientedGroup";
 import { PlanetBodyMeshPoleFrame } from "./PlanetBodyMeshPoleFrame";
 import { PlanetBodySpinAxisLine } from "./PlanetBodySpinAxisLine";
+import { PlanetBodySpinDirectionMarker } from "./PlanetBodySpinDirectionMarker";
 import { TexturedPlanetBody } from "./TexturedPlanetBody";
 import { usePlanetBodyDrawMode } from "./usePlanetBodyDrawMode";
 import { useViewStore } from "../../../store/viewStore";
@@ -28,22 +29,26 @@ import { recordKerbinChiralitySample } from "../../../map-v3/elements/planetBody
 const MESH_ORIGIN: [number, number, number] = [0, 0, 0];
 
 function PlanetBodyMeshOriented({
+  bodyName,
   scenePosition,
   meshR,
   color,
   body,
   gameUniversalTimeSeconds,
   showSpinAxis,
+  showSpinDirection,
   bodyTextureUrl,
   bodyTextureRevision,
   bodyTextureStatus,
 }: {
+  bodyName: string;
   scenePosition: [number, number, number];
   meshR: number;
   color: string;
   body: CelestialBodyWithOrientation | undefined;
   gameUniversalTimeSeconds: number;
   showSpinAxis: boolean;
+  showSpinDirection: boolean;
   bodyTextureUrl?: string;
   bodyTextureRevision?: string;
   bodyTextureStatus?: string;
@@ -80,6 +85,7 @@ function PlanetBodyMeshOriented({
         position={MESH_ORIGIN}
         renderOrder={1}
         fallbackColor={color}
+        bodyName={bodyName}
         textureUrl={bodyTextureUrl}
         textureRevision={bodyTextureRevision}
       />
@@ -99,7 +105,12 @@ function PlanetBodyMeshOriented({
     <group position={scenePosition}>
       <PlanetBodyOrientedGroup orientationKsp={orientationKsp}>
         {showSpinAxis ? <PlanetBodySpinAxisLine radius={meshR} /> : null}
-        <PlanetBodyMeshPoleFrame>{meshChild}</PlanetBodyMeshPoleFrame>
+        <PlanetBodyMeshPoleFrame>
+          {meshChild}
+          {showSpinDirection ? (
+            <PlanetBodySpinDirectionMarker radius={meshR} body={body} />
+          ) : null}
+        </PlanetBodyMeshPoleFrame>
       </PlanetBodyOrientedGroup>
     </group>
   );
@@ -127,6 +138,9 @@ export function PlanetBodyMesh({
   const devPlanetBodyLodOverride = useViewStore((s) => s.devPlanetBodyLodOverride);
   const devPlanetBodySpinAxisVisible = useViewStore(
     (s) => s.devPlanetBodySpinAxisVisible,
+  );
+  const devPlanetBodySpinDirectionVisible = useViewStore(
+    (s) => s.devPlanetBodySpinDirectionVisible,
   );
   const devPlanetBodySpinDiagnostics = useViewStore(
     (s) => s.devPlanetBodySpinDiagnostics,
@@ -208,12 +222,14 @@ export function PlanetBodyMesh({
 
   return (
     <PlanetBodyMeshOriented
+      bodyName={bodyName}
       scenePosition={scenePosition}
       meshR={meshR}
       color={color}
       body={body}
       gameUniversalTimeSeconds={gameUniversalTimeSeconds}
       showSpinAxis={devPlanetBodySpinAxisVisible}
+      showSpinDirection={devPlanetBodySpinDirectionVisible}
       bodyTextureUrl={bodyTextureUrl}
       bodyTextureRevision={bodyTextureRevision}
       bodyTextureStatus={bodyTextureStatus}

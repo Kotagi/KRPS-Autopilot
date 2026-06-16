@@ -8,7 +8,7 @@ import {
   kspRootQuaternionToThree,
   rotateKspRootVector,
 } from "../../../coords/kspBodyOrientation";
-import { BODY_TEXTURE_MIRROR_U } from "../../../assets/planetBodyTextures";
+import { resolveBodyTextureMirrorU } from "../../../assets/planetBodyTextures";
 import type { CelestialBodyWithOrientation } from "./planetBodyOrientationFields";
 import { readPlanetBodyOrientation } from "./planetBodyOrientationFields";
 
@@ -115,8 +115,8 @@ export function meshEquatorCrossSignAboutMeshNorth(
   const pole = poleOffsetQuaternion(poleOffsetRadians);
   const t0 = kspRootQuaternionToThree(q0);
   const t1 = kspRootQuaternionToThree(q1);
-  const m0 = new THREE.Vector3(1, 0, 0).applyQuaternion(t0).applyQuaternion(pole);
-  const m1 = new THREE.Vector3(1, 0, 0).applyQuaternion(t1).applyQuaternion(pole);
+  const m0 = new THREE.Vector3(1, 0, 0).applyQuaternion(pole).applyQuaternion(t0);
+  const m1 = new THREE.Vector3(1, 0, 0).applyQuaternion(pole).applyQuaternion(t1);
   const north = KSP_BODY_NORTH_LOCAL_THREE.clone().applyQuaternion(t0);
   const cross = new THREE.Vector3().crossVectors(m0, m1);
   return Math.sign(cross.dot(north));
@@ -173,6 +173,7 @@ export function clearKerbinChiralitySamples(): void {
 export function buildSpinChiralityReport(
   earlier: KerbinChiralitySample,
   later: KerbinChiralitySample,
+  bodyName = "Earth",
 ): SpinChiralityReport {
   const deltaUtSeconds = later.gameUt - earlier.gameUt;
   const deltaRotationAngleRad =
@@ -221,6 +222,8 @@ export function buildSpinChiralityReport(
     return Math.sign(new THREE.Vector3().crossVectors(m0, m1).dot(north));
   })();
 
+  const textureMirrorU = resolveBodyTextureMirrorU(bodyName);
+
   const candidates = [
     {
       id: "production-v135",
@@ -240,12 +243,12 @@ export function buildSpinChiralityReport(
       id: "texture-mirror-u",
       description:
         "If production matches KSP math but map looks backward: flip apparent spin via BODY_TEXTURE_MIRROR_U (longitude may shift)",
-      signEquatorCrossThree: BODY_TEXTURE_MIRROR_U ? signProd : -signProd,
-      agreesWithRotationAngle: BODY_TEXTURE_MIRROR_U
+      signEquatorCrossThree: textureMirrorU ? signProd : -signProd,
+      agreesWithRotationAngle: textureMirrorU
         ? signProd === signRotationAngle
         : -signProd === signRotationAngle,
       suggestedExperiment:
-        signProd === signRotationAngle && !BODY_TEXTURE_MIRROR_U,
+        signProd === signRotationAngle && !textureMirrorU,
     },
     {
       id: "no-pole-offset",
@@ -287,7 +290,7 @@ export function buildSpinChiralityReport(
   return {
     uiVersion:
       typeof window !== "undefined" ? window.KspSolarMapUiVersion : undefined,
-    bodyName: "Kerbin",
+    bodyName,
     earlierUt: earlier.gameUt,
     laterUt: later.gameUt,
     deltaUtSeconds,
@@ -302,7 +305,7 @@ export function buildSpinChiralityReport(
     },
     candidates,
     textureExport: {
-      bodyTextureMirrorU: BODY_TEXTURE_MIRROR_U,
+      bodyTextureMirrorU: textureMirrorU,
       revision: later.bodyTextureRevision ?? earlier.bodyTextureRevision,
     },
     verdict,

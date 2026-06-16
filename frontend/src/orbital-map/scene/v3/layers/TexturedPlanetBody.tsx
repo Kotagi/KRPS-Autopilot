@@ -8,6 +8,7 @@ export function TexturedPlanetBody({
   position,
   renderOrder,
   fallbackColor,
+  bodyName,
   textureUrl,
   textureRevision,
 }: {
@@ -15,6 +16,7 @@ export function TexturedPlanetBody({
   position: [number, number, number];
   renderOrder: number;
   fallbackColor: string;
+  bodyName?: string;
   textureUrl?: string;
   textureRevision?: string;
 }) {
@@ -43,6 +45,7 @@ export function TexturedPlanetBody({
     loadBodyTexture(
       textureUrl,
       textureRevision,
+      bodyName,
       (texture) => {
         if (disposed) {
           return;
@@ -64,7 +67,7 @@ export function TexturedPlanetBody({
       material.color.set(fallbackColor);
       material.needsUpdate = true;
     };
-  }, [textureUrl, textureRevision, fallbackColor, material]);
+  }, [textureUrl, textureRevision, bodyName, fallbackColor, material]);
 
   return (
     <mesh position={position} renderOrder={renderOrder}>

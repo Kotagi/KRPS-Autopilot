@@ -9,6 +9,10 @@ import {
 export function PlanetBodyOrientationDevPanel() {
   const visible = useViewStore((s) => s.devPlanetBodySpinAxisVisible);
   const setVisible = useViewStore((s) => s.setDevPlanetBodySpinAxisVisible);
+  const spinDirectionVisible = useViewStore((s) => s.devPlanetBodySpinDirectionVisible);
+  const setSpinDirectionVisible = useViewStore(
+    (s) => s.setDevPlanetBodySpinDirectionVisible,
+  );
   const spinDiag = useViewStore((s) => s.devPlanetBodySpinDiagnostics);
   const setSpinDiag = useViewStore((s) => s.setDevPlanetBodySpinDiagnostics);
   const chiralityCollect = useViewStore((s) => s.devPlanetBodySpinChiralityCollect);
@@ -32,6 +36,15 @@ export function PlanetBodyOrientationDevPanel() {
           onChange={(e) => setVisible(e.target.checked)}
         />
         Show spin/tilt axis
+      </label>
+      <label className="ksp-solar-customize-map-dev-toggle">
+        <input
+          type="checkbox"
+          checked={spinDirectionVisible}
+          disabled={!v3}
+          onChange={(e) => setSpinDirectionVisible(e.target.checked)}
+        />
+        Show spin direction
       </label>
       <label className="ksp-solar-customize-map-dev-toggle">
         <input
@@ -95,9 +108,12 @@ export function PlanetBodyOrientationDevPanel() {
         <span className="ksp-solar-customize-map-dev-hint">
           Axis hidden while <strong>Force dot</strong> is on (mesh LOD only).
         </span>
-      ) : visible ? (
+      ) : visible || spinDirectionVisible ? (
         <span className="ksp-solar-customize-map-dev-hint">
-          Yellow line = spin axis through mesh poles (KSP north); body should rotate about this line.
+          {visible ? "Yellow = spin axis (poles). " : ""}
+          {spinDirectionVisible
+            ? "Magenta = prime meridian; cyan arrow = prograde along equator (tangent, not toward a pole). Yellow spin axis uses a different parent frame — enable both to verify they stay consistent."
+            : null}
         </span>
       ) : null}
     </div>

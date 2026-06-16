@@ -32,12 +32,15 @@ export function kspRootVectorToThreeTuple(v: Vector3): [number, number, number] 
 }
 
 /**
- * Orientation similarity transform: Q_three = M · Q_ksp · M⁻¹
- * Maps body-fixed vectors into the same Three frame as {@link kspRootToThree}.
+ * Root-relative KSP attitude → Three.js display quaternion.
+ *
+ * Uses `Q_three = M⁻¹ · Q_ksp · M` (not `M · Q_ksp · M⁻¹`) so equator / texture
+ * motion matches stock `rotationPeriod` / `rotationAngle` on RSS bodies where
+ * `ω·n̂` opposes the published period sign.
  */
 export function kspRootQuaternionToThree(q: KspRootQuaternion): THREE.Quaternion {
   const ksp = new THREE.Quaternion(q.x, q.y, q.z, q.w).normalize();
-  return _basisQuat.clone().multiply(ksp).multiply(_basisQuatInverse);
+  return _basisQuatInverse.clone().multiply(ksp).multiply(_basisQuat);
 }
 
 export function kspRootAngularVelocityToThree(v: Vector3): THREE.Vector3 {
@@ -100,10 +103,37 @@ export const KSP_ROOT_IDENTITY_QUATERNION: KspRootQuaternion = {
 };
 
 /**
- * KSP body +Y (north) expressed in the Three.js body-fixed basis (before attitude quaternion).
+ * KSP body +Y (north) in {@link PlanetBodyOrientedGroup} local space (before pole offset).
  * Matches {@link kspRootVectorToThree} on (0,1,0)_ksp.
  */
 export const KSP_BODY_NORTH_LOCAL_THREE = new THREE.Vector3(0, 0, -1);
+
+/**
+ * Textured SphereGeometry +Y pole — local space inside {@link PlanetBodyMeshPoleFrame}
+ * (after the −90° X pole offset child transform).
+ */
+export const MESH_SPHERE_NORTH_LOCAL = new THREE.Vector3(0, 1, 0);
+
+/** Prime meridian equator point in pole-frame local (+X on the sphere equator). */
+export const MESH_PRIME_MERIDIAN_EQUATOR_LOCAL = new THREE.Vector3(1, 0, 0);
+
+/** Rotates default sphere +Y pole onto {@link KSP_BODY_NORTH_LOCAL_THREE}. */
+const _meshPoleOffset = new THREE.Quaternion().setFromAxisAngle(
+  new THREE.Vector3(1, 0, 0),
+  -Math.PI / 2,
+);
+
+/**
+ * Pole-frame local → scene/inertial direction: v' = Q_att · Q_pole · v
+ * (matches R3F: PlanetBodyOrientedGroup then PlanetBodyMeshPoleFrame).
+ */
+export function applyMeshPoleFrameLocalToScene(
+  local: THREE.Vector3,
+  attitudeThree: THREE.Quaternion,
+  poleOffset: THREE.Quaternion = _meshPoleOffset,
+): THREE.Vector3 {
+  return local.clone().applyQuaternion(poleOffset).applyQuaternion(attitudeThree);
+}
 
 /** +90° about KSP X: Unity world → root-relative (matches OrbitFrameMapping.cs). */
 const WORLD_TO_ROOT_REL_QUAT = new THREE.Quaternion(
@@ -128,12 +158,6 @@ export function kspWorldVectorToRootRelative(v: Vector3): Vector3 {
   );
   return { x: out.x, y: out.y, z: out.z };
 }
-
-/** Rotates default sphere +Y pole onto {@link KSP_BODY_NORTH_LOCAL_THREE}. */
-const _meshPoleOffset = new THREE.Quaternion().setFromAxisAngle(
-  new THREE.Vector3(1, 0, 0),
-  -Math.PI / 2,
-);
 
 export function kspMeshPoleOffsetQuaternion(): THREE.Quaternion {
   return _meshPoleOffset.clone();
